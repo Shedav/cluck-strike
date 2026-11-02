@@ -13,14 +13,16 @@ export function Road() {
   const betCents = useGame((s) => (s.round.phase === 'idle' ? s.betCents : s.round.betCents))
   const capLane = maxWinLane(betCents, round.difficulty)
   const current = useRef<HTMLDivElement>(null)
-  // After a win the chicken goes back to the start; the popup tells the result.
-  const lane = isWin(round.phase) ? 0 : round.lane
+  const burnt = useAfterDelay(round.phase === 'hit', round.nonce)
+  // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
+  // fire stays on the Lane for a moment first.
+  const lane = isWin(round.phase) || burnt ? 0 : round.lane
 
   useEffect(() => {
     current.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
   }, [lane])
 
-  const chicken = round.phase === 'hit' ? '🔥' : '🐔'
+  const chicken = round.phase === 'hit' && !burnt ? '🔥' : '🐔'
 
   return (
     <div className={styles.scene}>
@@ -60,21 +62,25 @@ function Badge({ multiplier }: { multiplier: number }) {
   )
 }
 
-const POPUP_MS = 2000
+const RESULT_MS = 2000
+
+/** True once `active` has held for RESULT_MS within the Round identified by `nonce`. */
+function useAfterDelay(active: boolean, nonce: number | null) {
+  const [doneFor, setDoneFor] = useState<number | null>(null)
+  useEffect(() => {
+    if (!active) return
+    const timer = setTimeout(() => setDoneFor(nonce), RESULT_MS)
+    return () => clearTimeout(timer)
+  }, [active, nonce])
+  return active && doneFor === nonce
+}
 
 /** Shows the Multiplier and payout of a won Round for a moment, then hides. */
 function WinPopup() {
   const round = useGame((s) => s.round)
-  const won = isWin(round.phase)
-  const [hiddenFor, setHiddenFor] = useState<number | null>(null)
+  const hidden = useAfterDelay(isWin(round.phase), round.nonce)
 
-  useEffect(() => {
-    if (!won) return
-    const timer = setTimeout(() => setHiddenFor(round.nonce), POPUP_MS)
-    return () => clearTimeout(timer)
-  }, [won, round.nonce])
-
-  if (!isWin(round.phase) || hiddenFor === round.nonce) return null
+  if (!isWin(round.phase) || hidden) return null
   const title = { cashedOut: 'You win!', finished: 'Finish!', maxWin: 'Max Win!' }[round.phase]
   return (
     <div className={styles.popup} role="status" data-testid="win-popup">

@@ -45,7 +45,7 @@ test('a Hit on the first Step loses the Bet', async ({ page }) => {
   await placeBet(page, '10')
   await page.getByRole('button', { name: 'Play' }).click()
 
-  await expect(page.getByText('Hit on Lane 1. Bet lost.')).toBeVisible()
+  await expect(page.getByRole('status')).toHaveText('Hit on Lane 1. Bet lost.')
   await expect(page.getByTestId('balance')).toHaveText('990.00')
   await expect(page.getByRole('button', { name: 'Play' })).toBeEnabled()
 })

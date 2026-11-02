@@ -9,7 +9,7 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 - The Finish: a golden case.
 - The camera scrolls sideways after the chicken.
 
-Buttons are locked while an animation plays. After a Hit the scene resets after 2 seconds.
+Buttons are locked while an animation plays. After a Hit the burn animation plays, then the chicken returns to the start (the 2 s reset already exists with an emoji placeholder).
 
 **Blocked by:** 02.
 

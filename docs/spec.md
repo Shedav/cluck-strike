@@ -23,7 +23,8 @@ Test task: a playable browser game of chance in the genre of Chicken Road that l
 - Automatic Cash Out happens:
   - on **Finish**, i.e. the last Lane is crossed safely;
   - on **Max Win**, i.e. when Bet × Multiplier reaches 10,000. The payout is exactly 10,000 and the Round ends.
-- **After a Hit** the scene resets after 2 s. A setting ("Auto-reset after Hit", on by default) can turn this off, so the result stays on screen until the next Play.
+- **After a win** (Cash Out, Finish, Max Win) the chicken returns to the start and a popup shows the Multiplier and payout for 2 s. No status line.
+- **After a Hit** the fire (later a burn animation) shows on the Lane for 2 s, then the chicken returns to the start. A setting ("Auto-reset after Hit", on by default) can turn this off, so the result stays on screen until the next Play.
 - **Reloading the page** mid-Round restores the Round exactly where it was.
 
 ### Difficulty and odds

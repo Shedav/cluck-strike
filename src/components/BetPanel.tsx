@@ -133,7 +133,7 @@ export function BetPanel() {
         )}
       </div>
 
-      <p className={styles.status} role="status">
+      <p className={styles.srOnly} role="status">
         <RoundStatus />
       </p>
     </section>
@@ -160,9 +160,9 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 const maxWinCents = (betCents: number, difficulty: Difficulty) =>
   payoutCents(betCents, difficulty, laneCount(difficulty))
 
-/** Only a Hit is reported here; wins get the popup over the road. */
+/** Screen readers only: a Hit is shown by the scene, wins by the popup. */
 function RoundStatus() {
   const round = useGame((s) => s.round)
   if (round.phase !== 'hit') return null
-  return <span className={styles.lost}>Hit on Lane {round.lane}. Bet lost.</span>
+  return <>Hit on Lane {round.lane}. Bet lost.</>
 }

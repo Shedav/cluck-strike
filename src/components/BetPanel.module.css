@@ -96,19 +96,13 @@
   outline-offset: 2px;
 }
 
-.status {
-  flex-basis: 100%;
-  margin: 0;
-  min-height: 1.4em;
-  font-weight: 600;
-}
-
-.won {
-  color: var(--win);
-}
-
-.lost {
-  color: var(--hit);
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .difficulty {
