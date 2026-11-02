@@ -12,7 +12,7 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 
 **Blocked by:** 08.
 
-**Status:** direction under review — waiting for the user's choice of how the frames are made.
+**Status:** in progress — option 1 (pixel sprites drawn in code) chosen; split into [12-animated-pixel-art/01–04](12-animated-pixel-art/).
 
 Originally this ticket was "art direction and AI image prompts" for still sprites. The user wants animation, and AI image generators don't keep one character consistent across frames, so the options are:
 
@@ -22,6 +22,6 @@ Originally this ticket was "art direction and AI image prompts" for still sprite
 
 Once chosen, this ticket is split into slices (sprite engine and chicken; burn to skeleton; case opening; fire, Smoke, grenade and pixel font). Frames are shown to the user for approval before they go into the game. Given the size of the work, it is best done in a fresh session.
 
-- [ ] Direction chosen
-- [ ] Sliced into tickets
+- [x] Direction chosen: pixel sprites drawn in code
+- [x] Sliced into tickets
 - [ ] Time spent recorded at the bottom of this ticket
