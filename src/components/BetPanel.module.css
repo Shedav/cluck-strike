@@ -225,3 +225,60 @@
   font-size: 12px;
   color: var(--hit);
 }
+
+.select {
+  display: none;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+}
+
+/* Phones: everything stacks at full width and Difficulty becomes a dropdown. */
+@media (max-width: 560px) {
+  .panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inputBox {
+    flex: 1;
+  }
+
+  .input {
+    width: 100%;
+  }
+
+  .tabs {
+    display: none;
+  }
+
+  .select {
+    display: block;
+  }
+
+  .maxWin {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .maxWinValue {
+    height: auto;
+  }
+
+  .actions {
+    margin-left: 0;
+  }
+
+  .go,
+  .cashOut {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+  }
+}

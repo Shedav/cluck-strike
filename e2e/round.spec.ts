@@ -51,7 +51,6 @@ test('a Hit on the first Step loses the Bet', async ({ page }) => {
 })
 
 test('a full Easy run crosses all 24 Lanes before the Finish', async ({ page }) => {
-  test.setTimeout(60_000)
   await rigSeeds(page, (lane) => lane === null)
   await placeBet(page, '10')
   const chickenOn = (lane: number) => page.locator(`[data-lane="${lane}"] img[alt="Chicken"]`)
@@ -70,4 +69,29 @@ test('a full Easy run crosses all 24 Lanes before the Finish', async ({ page }) 
   await expect(popup).toContainText('194.40')
   await expect(page.getByTestId('balance')).toHaveText('1,184.40')
   await expect(chickenOn(0)).toBeVisible()
+})
+
+test('Space plays and steps, Enter cashes out', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'no hardware keyboard on phones')
+  await rigSeeds(page, (lane) => lane === null || lane > 2)
+  await placeBet(page, '10')
+  await page.locator('body').click({ position: { x: 5, y: 5 } }) // leave the Bet input
+
+  await page.keyboard.press('Space')
+  await expect(page.getByRole('status')).toHaveText('Lane 1 crossed. Multiplier 1.03x.')
+  await expect(page.getByRole('button', { name: 'GO' })).toBeEnabled()
+  await page.keyboard.press('Space')
+  await expect(page.getByRole('status')).toHaveText('Lane 2 crossed. Multiplier 1.07x.')
+  await expect(page.getByRole('button', { name: /Cash Out/ })).toBeEnabled()
+  await page.keyboard.press('Enter')
+
+  await expect(page.getByRole('status')).toHaveText('Cashed out 10.70.')
+  await expect(page.getByTestId('balance')).toHaveText('1,000.70')
+})
+
+test('the page fits a phone screen without sideways scrolling', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'phone layout only')
+  await page.goto('/')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
+  await expect(page.getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
 })

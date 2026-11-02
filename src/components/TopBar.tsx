@@ -57,10 +57,10 @@ export function TopBar() {
             </button>
           ))}
         </div>
-        <span className={styles.balance} data-testid="balance" aria-label={t('balance')}>
-          <Coin /> {formatCoins(balanceCents)}
-        </span>
       </nav>
+      <span className={styles.balance} data-testid="balance" aria-label={t('balance')}>
+        <Coin /> {formatCoins(balanceCents)}
+      </span>
 
       <Dialog open={rulesOpen} onClose={() => setRulesOpen(false)} title={t('rules')}>
         <Rules />

@@ -310,7 +310,8 @@ function WinPopup({ show }: { show: boolean }) {
     ({ cashedOut: 'youWin', finished: 'finish', maxWin: 'maxWinReached' } as const)[round.phase],
   )
   return (
-    <div className={styles.popup} role="status" data-testid="win-popup">
+    // Screen readers hear the result from the Bet panel's live region instead.
+    <div className={styles.popup} aria-hidden="true" data-testid="win-popup">
       <span className={styles.popupTitle}>{title}</span>
       <span className={styles.popupMultiplier}>
         {formatMultiplier(round.payoutCents / round.betCents)}

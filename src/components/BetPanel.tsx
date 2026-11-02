@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { formatCoins, parseCoins } from '../format'
-import { DIFFICULTIES, laneCount, payoutCents, type Difficulty } from '../game/odds'
+import { useEffect, useState } from 'react'
+import { formatCoins, formatMultiplier, parseCoins } from '../format'
+import { DIFFICULTIES, laneCount, multiplierAt, payoutCents, type Difficulty } from '../game/odds'
 import {
   betError,
   canCashOut,
@@ -36,6 +36,25 @@ export function BetPanel() {
       setAnimating(false)
     }
   }
+
+  const canStep = !animating && (playing ? canGo(game) : canPlay(game))
+  const canTake = !animating && canCashOut(game)
+
+  // Hotkeys: Space = Play/GO, Enter = Cash Out. Not while typing or with a dialog open; on another
+  // focused control (MIN, a chip...) Space and Enter keep their own meaning.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== ' ' && e.key !== 'Enter') return
+      if (e.repeat || document.querySelector('dialog[open]')) return
+      const el = document.activeElement
+      if (el && el !== document.body && !(el instanceof HTMLElement && el.dataset.hotkey)) return
+      e.preventDefault()
+      if (e.key === ' ' && canStep) void animated(playing ? game.go : game.play)
+      if (e.key === 'Enter' && canTake) void game.cashOut()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
 
   function choose(cents: number) {
     setBetText((cents / 100).toFixed(2))
@@ -101,6 +120,19 @@ export function BetPanel() {
 
       <fieldset className={styles.difficulty} disabled={playing}>
         <legend className={styles.label}>{t('difficulty')}</legend>
+        {/* Tabs on wide screens, a dropdown on phones (CSS shows one of them). */}
+        <select
+          className={styles.select}
+          aria-label={t('difficulty')}
+          value={game.round.difficulty}
+          onChange={(e) => game.setDifficulty(e.target.value as Difficulty)}
+        >
+          {DIFFICULTIES.map((d) => (
+            <option key={d} value={d}>
+              {t(d)}
+            </option>
+          ))}
+        </select>
         <div className={styles.tabs}>
           {DIFFICULTIES.map((d) => (
             <label key={d} className={styles.tab}>
@@ -130,14 +162,16 @@ export function BetPanel() {
             <button
               key="cashOut"
               className={styles.cashOut}
-              disabled={animating || !canCashOut(game)}
+              data-hotkey="Enter"
+              disabled={!canTake}
               onClick={game.cashOut}
             >
               {t('cashOut')} <Coin /> {formatCoins(cashOutCents(game))}
             </button>
             <button
               className={styles.go}
-              disabled={animating || !canGo(game)}
+              data-hotkey="Space"
+              disabled={!canStep}
               onClick={() => animated(game.go)}
             >
               {t('go')}
@@ -150,7 +184,8 @@ export function BetPanel() {
         ) : (
           <button
             className={styles.go}
-            disabled={animating || !canPlay(game)}
+            data-hotkey="Space"
+            disabled={!canStep}
             onClick={() => animated(game.play)}
           >
             {t('play')}
@@ -178,10 +213,30 @@ const BET_ERRORS: Record<BetError, MessageKey> = {
 const maxWinCents = (betCents: number, difficulty: Difficulty) =>
   payoutCents(betCents, difficulty, laneCount(difficulty))
 
-/** Screen readers only: a Hit is shown by the scene, wins by the popup. */
+/** Screen readers only: what the scene and the win popup show, as one live message. */
 function RoundStatus() {
   const round = useGame((s) => s.round)
   const t = useT()
-  if (round.phase !== 'hit') return null
-  return <>{t('hitAnnouncement', { lane: round.lane })}</>
+  const amount = formatCoins(round.payoutCents)
+  switch (round.phase) {
+    case 'playing':
+      return round.lane > 0 ? (
+        <>
+          {t('stepAnnouncement', {
+            lane: round.lane,
+            multiplier: formatMultiplier(multiplierAt(round.difficulty, round.lane)),
+          })}
+        </>
+      ) : null
+    case 'hit':
+      return <>{t('hitAnnouncement', { lane: round.lane })}</>
+    case 'cashedOut':
+      return <>{t('cashOutAnnouncement', { amount })}</>
+    case 'finished':
+      return <>{t('finishAnnouncement', { amount })}</>
+    case 'maxWin':
+      return <>{t('maxWinAnnouncement', { amount })}</>
+    default:
+      return null
+  }
 }

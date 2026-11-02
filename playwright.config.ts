@@ -7,12 +7,22 @@ export default defineConfig({
   testDir: 'e2e',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // Animations run in real time and two device profiles share the CPU.
+  timeout: 60_000,
   use: { baseURL },
   projects: [
     {
       name: 'chromium',
       // Playwright's bundled Chromium doesn't install on macOS 13, so local runs use installed Chrome.
       use: { ...devices['Desktop Chrome'], channel: process.env.CI ? undefined : 'chrome' },
+    },
+    {
+      name: 'mobile',
+      use: {
+        ...devices['Pixel 7'],
+        viewport: { width: 360, height: 780 },
+        channel: process.env.CI ? undefined : 'chrome',
+      },
     },
   ],
   // Smoke tests run against the production build, not the dev server.

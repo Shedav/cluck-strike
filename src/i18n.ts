@@ -27,6 +27,10 @@ const en = {
   betAboveMax: 'Maximum Bet is {amount}',
   betAboveBalance: 'Not enough Balance',
   hitAnnouncement: 'Hit on Lane {lane}. Bet lost.',
+  stepAnnouncement: 'Lane {lane} crossed. Multiplier {multiplier}.',
+  cashOutAnnouncement: 'Cashed out {amount}.',
+  finishAnnouncement: 'Finish! Won {amount}.',
+  maxWinAnnouncement: 'Max Win! Cashed out {amount}.',
 
   youWin: 'You win!',
   finish: 'Finish!',
@@ -120,6 +124,10 @@ const ru: Record<MessageKey, string> = {
   betAboveMax: 'Максимальная ставка {amount}',
   betAboveBalance: 'Недостаточно средств',
   hitAnnouncement: 'Курица сгорела на полосе {lane}. Ставка проиграна.',
+  stepAnnouncement: 'Полоса {lane} пройдена. Множитель {multiplier}.',
+  cashOutAnnouncement: 'Выигрыш {amount} забран.',
+  finishAnnouncement: 'Финиш! Выигрыш {amount}.',
+  maxWinAnnouncement: 'Максимальный выигрыш! Забрано {amount}.',
 
   youWin: 'Выигрыш!',
   finish: 'Финиш!',

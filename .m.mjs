@@ -1,0 +1,10 @@
+import { chromium, devices } from '@playwright/test'
+const browser = await chromium.launch({ channel: 'chrome' })
+const page = await browser.newPage({ ...devices['Pixel 7'], viewport: { width: 360, height: 780 } })
+await page.goto('http://localhost:5173')
+await page.evaluate(() => localStorage.clear())
+await page.reload()
+await page.waitForTimeout(400)
+console.log('scrollWidth', await page.evaluate(() => document.documentElement.scrollWidth))
+await page.screenshot({ path: process.argv[2] + '/' + process.argv[3] + '.png', fullPage: true })
+await browser.close()
