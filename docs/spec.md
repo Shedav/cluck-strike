@@ -9,7 +9,7 @@ Test task: a playable browser game of chance in the genre of Chicken Road that l
   - Every Step: the chicken throws a smoke grenade at the next Lane, then hops onto it.
   - Safe Step: the grenade lands, a Smoke cloud (with cs2skin's violet glow) puts the fire out, and the chicken hops into the smoke.
   - Hit: the grenade flies past, the chicken hops into the fire, it flares up and the chicken gets roasted.
-  - Finish: a golden case.
+  - Finish: the last Step plays out, the chicken stands on the last Lane next to a golden case, then the win is celebrated.
   - Fallback theme if this one does not work out: fire bursting from manholes.
 - No Valve or cs2skin logos, map names or assets. The logo is our own and does not imitate the Counter-Strike logo.
 
@@ -24,9 +24,10 @@ Test task: a playable browser game of chance in the genre of Chicken Road that l
 - Automatic Cash Out happens:
   - on **Finish**, i.e. the last Lane is crossed safely;
   - on **Max Win**, i.e. when Bet × Multiplier reaches 10,000. The payout is exactly 10,000 and the Round ends.
-- **After a win** (Cash Out, Finish, Max Win) the chicken returns to the start and a popup shows the Multiplier and payout for 2 s. No status line.
-- **After a Hit** the burn animation plays on the Lane, then the chicken returns to the start.
-- **Reloading the page** mid-Round restores the Round exactly where it was.
+- **After a win** a popup shows the Multiplier and payout for 2 s (after a Cash Out at once; after a Finish or Max Win once the last Step has played). No status line.
+- **After a Hit** the burn animation plays on the Lane.
+- In both cases the chicken then fades out where it stands and fades back in at the start.
+- **Reloading the page** mid-Round restores the Round exactly where it was, without replaying the last Step. A finished Round is not restored: a reload after it starts at the start line.
 
 ### Difficulty and odds
 
@@ -42,10 +43,10 @@ Test task: a playable browser game of chance in the genre of Chicken Road that l
 The outcome is predetermined, as described in [ADR 0001](adr/0001-predetermined-outcome.md).
 
 - The Hit Lane is derived from `HMAC-SHA256(serverSeed, clientSeed:nonce)`, mapped through the survival distribution above.
-- Each Round gets a new Server Seed. Its SHA-256 hash is shown before the Round, and the seed itself is revealed after.
+- Each Round gets a new Server Seed, drawn one Round ahead: its SHA-256 hash is shown before Play (and before the player edits the Client Seed), and the seed itself is revealed after the Round.
 - The Client Seed is random by default and can be edited in the Fairness modal. The nonce increments every Round.
-- The Fairness modal shows the hash, the seeds, the nonce and the resulting Hit Lane, and lets the player verify the Round.
-- A `mockServer` module with an async API (`startRound → { hash }`, `step → safe | hit`, `endRound → { serverSeed }`) owns the seeds. The UI and the store never see the Server Seed before the Round ends. Swapping in a real backend means replacing this one module.
+- The Fairness modal shows the next Round's hash and nonce, the Client Seed, and for the last Round the revealed seeds with a re-check: the hash must match and the recomputed Hit Lane must agree with how the Round ended. Every row in Recent Games opens the same check.
+- The mock server (`shared/api`) implements an async, backend-shaped contract: `startRound`, `step` (safe / Hit / Finish / Max Win), `cashOut`, `currentRound` (to resume after a reload) and `nextRound` (the committed hash and nonce). It owns the seeds; the UI and the store never see a Server Seed before its Round ends. Swapping in a real backend means replacing this one implementation (ADR 0001, ADR 0002).
 
 ### Bet and Balance
 
@@ -73,14 +74,13 @@ Recent Games keeps the player's last 100 finished Rounds and shows them 10 at a 
   - **Scene:** about 5 Lanes visible on desktop and about 2 on mobile. The camera scrolls sideways after the chicken. Each Lane has a Multiplier badge, shown compact (`41.3Kx`, `2.54Mx`) with the full value in a tooltip. Badges beyond the Max Win Lane are dimmed.
   - **Bottom panel:** Bet controls, Difficulty tabs, then Play, which turns into GO plus Cash Out showing Bet × current Multiplier.
   - **Below the game:** Recent Games.
-  - **Mobile:** the bottom panel stacks vertically and Difficulty becomes a dropdown.
-- **Animation:** DOM + Framer Motion. A Step is a hop, then Smoke or a flare-up. Buttons are locked while an animation plays, which also prevents double clicks.
+  - **Mobile** (below 640px): the logo and Balance share the first row with the tools below; the bottom panel stacks vertically and Difficulty becomes a dropdown; Recent Games drops the Difficulty column. No horizontal page scroll down to 360px.
+- **Animation:** DOM + Framer Motion. A Step is a throw (0.45 s) and a hop (0.45 s); safe: the grenade lands and Smoke puts the fire out; Hit: it flies past, the chicken lands in the flames, they flare up and leave a roasted chicken. Badge colours change in sync with the animation. Buttons are locked while an animation plays, which also prevents double clicks. Timings live in `shared/config`.
 - **Sound:** throw, Smoke, hop, Hit (fire burst, then crackling fat and the chicken's scream as it burns), Cash Out and Finish, synthesized in the browser with the Web Audio API (no audio files). Sound is on by default, toggled from the top bar, and the choice is persisted. No music.
-- **Hotkeys:** Space for Play/GO, Enter for Cash Out.
-- **Accessibility:** fully keyboard-operable, Step results announced via `aria-live`, and `prefers-reduced-motion` respected.
-- **Art:** cartoon flat 2D with a bold outline.
-  - CC0 packs to start; AI-generated sprites later. Claude writes the prompts and the art direction, the user generates the images.
-  - Sprites live in `public/sprites/` under fixed names, so they can be swapped without code changes.
+- **Hotkeys:** Space for Play/GO, Enter for Cash Out; ignored while typing or with a dialog open. Listed in the rules.
+- **Accessibility:** fully keyboard-operable with a visible focus outline; every Step, Hit, Cash Out, Finish and Max Win announced via one `aria-live` region; native `<dialog>` modals; `prefers-reduced-motion` respected.
+- **Art:** our own flat SVG sprites with a bold outline (chicken, roasted chicken, fire, Smoke, smoke grenade, golden case) in `public/sprites/` under fixed names, so they can be replaced without code changes.
+  - Under review (ticket 12): frame-by-frame 8-bit pixel animation in the style of cs2skin.com/crash — chicken idle, throw and hop; burning down to a skeleton; the golden case opening; pixel fire and Smoke; a pixel font for Multipliers. Whether the frames are drawn in code or AI-generated is not decided yet.
 - **i18n:** a small typed dictionary for `en` and `ru`. The default language is English; the player can switch to Russian and the choice is persisted.
 
 ## Out of scope
@@ -93,7 +93,7 @@ Backend, accounts, other players' bets, live-wins ticker, online counter, music,
 - Feature-Sliced Design (`app → pages → widgets → features → entities → shared`) with slice public APIs and an import-boundary test; see [ADR 0002](adr/0002-feature-sliced-design.md).
 - Zustand with `persist`. Round transitions are pure functions kept outside the store.
 - CSS Modules with CSS variables for the palette, Framer Motion, and Web Crypto (no crypto dependency).
-- Tests: Vitest through the game store's public API (main seam), plus direct unit tests of the odds math, fairness and Round transitions. Playwright smoke tests cover bet → step → cash out and a forced Hit.
+- Tests: Vitest through the game store's public API (main seam), plus direct unit tests of the odds math, fairness, Round transitions, persistence, i18n and sound, and the import-boundary test. Playwright runs every scenario on desktop and on a 360px phone profile against the production build: win and Cash Out, a forced Hit, a full Easy run across all 24 Lanes, hotkeys, a reload mid-Round and the phone layout. Outcomes are pinned by stubbing `crypto.getRandomValues` in the page, so the app has no seed backdoor.
 - oxlint and Prettier. GitHub Actions runs lint → format check → test → build → smoke.
 - Conventional Commits and the MIT license. The GitHub repository is public and deployed to Vercel.
 - The README (English) covers how to run the game, a time log by stage, the decisions with links to the ADRs, and known limits (the fairness proof is client-side only).

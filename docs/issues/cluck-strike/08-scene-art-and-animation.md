@@ -26,7 +26,7 @@ Buttons are locked while an animation plays. After a Hit the burn animation play
 
 **Notes:**
 
-- Instead of CC0 packs, the placeholder sprites are our own flat SVGs (chicken, roasted chicken, fire, smoke, golden case): nothing to download or license, and the same file names will take the AI-generated art from ticket 12.
+- Instead of CC0 packs, the placeholder sprites are our own flat SVGs (chicken, roasted chicken, fire, smoke, golden case): nothing to download or license, and the fixed file names leave room for the animated art of ticket 12.
 - The chicken moves with a shared `layoutId` (it slides from Lane to Lane) plus a hop; the road is a `layoutScroll` container so the camera scroll doesn't break the slide.
 - After a Hit the flare dies down to show the roasted chicken; after 2 s the chicken returns to the start.
 - `MotionConfig reducedMotion="user"` drops transform animations (hop, shake) for reduced-motion users; the CSS flicker and popup pop are switched off too.

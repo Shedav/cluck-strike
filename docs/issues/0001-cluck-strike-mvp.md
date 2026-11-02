@@ -85,7 +85,7 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 
 ### Recent Games
 
-36. As a player, I want a Recent Games list of my last 10 Rounds with Difficulty, Bet, Multiplier and payout, so that I can track how I'm doing.
+36. As a player, I want a Recent Games list of my recent Rounds (10 at a time, Load more for up to 100) with Difficulty, Bet, Multiplier and payout, so that I can track how I'm doing.
 37. As a player, I want wins and Hits colored differently in Recent Games, so that I can scan results at a glance.
 38. As a player, I want Recent Games to survive a reload, so that my history isn't lost.
 
@@ -93,7 +93,7 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 
 39. As a Russian-speaking player, I want to switch the UI to Russian (English is the default), so that I can play in my language.
 40. As a player, I want to switch between EN and RU and have my choice remembered, so that it sticks between visits.
-41. As a player, I want sound effects for Step, Smoke, Hit and Cash Out, off by default with a toggle in the top bar, so that I decide whether the game makes noise.
+41. As a player, I want sound effects for the throw, Smoke, hop, Hit, Cash Out and Finish, on by default with a toggle in the top bar, so that the game feels alive and I can still mute it.
 42. As a player, I want my sound and language choices remembered, so that I don't set them every time.
 
 ### Look, layout, accessibility
@@ -112,7 +112,7 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 51. As a reviewer, I want a deployed link, so that I can play without building anything.
 52. As a reviewer, I want a README with a time log, the decisions and links to ADRs, so that I can judge the trade-offs.
 53. As a developer, I want the Server Seed handling behind a single mock server module, so that a real backend can replace it without touching the UI.
-54. As a developer, I want sprites under fixed names, so that AI-generated art can replace the placeholder packs without code changes.
+54. As a developer, I want sprites under fixed names, so that new art can replace the placeholder sprites without code changes.
 55. As a developer, I want CI to run lint, tests and build on every push, so that main always works.
 
 ## Implementation Decisions
@@ -133,19 +133,20 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
     - Step → safe or Hit;
     - Cash Out → payout;
     - every Round end reveals the Server Seed.
-  - A new Server Seed is generated for every Round.
+  - A new Server Seed is drawn for every Round, one Round ahead, so its hash can be shown before Play (`nextRound`).
+  - `currentRound` returns the unfinished Round without its seed, so a reloaded client can resume it.
   - It keeps its own persisted state, so a Round survives a reload; the UI never reads the Server Seed before the Round ends.
   - It accepts an injectable seed source. Tests pass fixed seeds; the app uses `crypto.getRandomValues`.
-- **Round transitions.** Pure functions describing the Round phases. This is the client's view of the state machine: `idle → playing → cashedOut | hit | finished`, and Max Win counts as a cashed-out end.
+- **Round transitions.** Pure functions describing the Round phases. This is the client's view of the state machine: `idle → playing → cashedOut | hit | finished | maxWin`.
   - A transition is ignored when the current phase does not allow it. This is the guard against double clicks and a Step after the end.
 - **Game store** (Zustand + persist). This is the single public API the UI talks to:
   - player actions: Play, GO, Cash Out;
   - Bet and Difficulty setters, Client Seed setter, top-up;
   - language and sound toggles;
   - derived values: Cash Out amount, Max Win Lane, whether each action is allowed.
-  - It persists Balance, the Round in progress and Recent Games (last 10 Rounds); language and sound are persisted separately.
+  - It persists Balance, the Round in progress and Recent Games (last 100 Rounds); language and sound are persisted separately. A finished Round is not persisted.
 - **i18n.** A small typed `en`/`ru` dictionary. A missing key is a type error. The default language is English.
-- **Sound.** Four effects, lazily loaded and gated by the sound setting.
+- **Sound.** Effects synthesized with the Web Audio API (no files): throw, Smoke, hop, fire burst, roast (crackling and the chicken's scream), Cash Out chime, Finish fanfare. Silent until the first user gesture and when muted.
 - **UI components:**
   - Top bar: name, Balance, language, sound, Fairness, rules.
   - Scene: Lanes, Multiplier badges, chicken, fire / Smoke / flare-up, golden case at the Finish.
@@ -162,12 +163,13 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 - Animations are cosmetic and run after the store knows the result (ADR 0001). The UI keeps its own "animating" lock on top of the store's phase guard.
 - After a Hit, the burn plays and then the scene resets; the Round itself is already finished in the store.
 - The stack is DOM + Framer Motion, with no canvas. CSS Modules use CSS variables for the cs2skin palette.
+- Code is organised by Feature-Sliced Design with an import-boundary test (ADR 0002): game rules and the mock server in `shared`, the Round model and store in `entities/round`, the Fairness check in `features/verify-round`, and the top bar, scene, Bet panel and Recent Games as widgets.
 
 ## Testing Decisions
 
 A good test drives the system the way its user does and asserts what the user can observe: Balance, Multiplier, phase, payout, Recent Games, revealed seeds. It never asserts internal calls or private state. Fixed seeds make every scenario deterministic.
 
-There are no tests yet; this is a new codebase, so these set the prior art.
+These set the prior art for the codebase.
 
 **Main seam: the game store's public API (Vitest).**
 
@@ -177,7 +179,7 @@ There are no tests yet; this is a new codebase, so these set the prior art.
 - Finish and Max Win auto Cash Out.
 - Locked actions are ignored (double click, Step after the end).
 - A Round is restored after a reload (a new store over the same storage).
-- Recent Games caps at 10 Rounds.
+- Recent Games caps at 100 Rounds, newest first.
 - Top-up appears only below the minimum Bet.
 - Verifying a finished Round from its revealed seeds gives the Hit Lane that actually happened.
 
@@ -195,10 +197,14 @@ There are no tests yet; this is a new codebase, so these set the prior art.
   - changing the Client Seed or the nonce changes the outcome.
 - Round transitions: allowed and ignored transitions per phase.
 
-**UI smoke (Playwright), against the built app:**
+**UI (Playwright), against the built app, on desktop and a 360px phone:**
 
 - Play → GO → Cash Out increases the Balance.
 - A forced Hit (fixed seeds injected for the test) shows the result and decreases the Balance.
+- A full Easy run crosses all 24 Lanes before the Finish.
+- Space and Enter play, step and cash out.
+- A reload mid-Round shows the chicken on its Lane without replaying the Step.
+- The page fits a phone without sideways scroll.
 
 ## Out of Scope
 
@@ -207,7 +213,7 @@ There are no tests yet; this is a new codebase, so these set the prior art.
 - Other players' bets, a live-wins ticker, an online counter.
 - Music, autoplay, leaderboards.
 - Valve or cs2skin logos, map names or assets.
-- Final AI-generated art. The MVP uses CC0 placeholder packs; Claude writes the prompts and the user generates the art later.
+- Final art. The MVP uses our own flat SVG sprites; animated 8-bit art is ticket 12.
 
 ## Further Notes
 
