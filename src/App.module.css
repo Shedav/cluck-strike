@@ -5,36 +5,3 @@
   display: grid;
   gap: 16px;
 }
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.title {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.subtitle {
-  color: var(--text-subtle);
-  font-size: 14px;
-}
-
-.subtitle + * {
-  margin-left: auto;
-}
-
-.balance {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: var(--radius-pill);
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 600;
-}

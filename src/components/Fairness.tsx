@@ -2,17 +2,19 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { sha256, verifyRound } from '../game/fairness'
 import { isWin, type Round } from '../game/round'
 import { useGame } from '../game/store'
+import { useT } from '../i18n'
 import styles from './Fairness.module.css'
 
 /** Top-bar button that opens the provably fair modal. */
 export function FairnessButton() {
   const [open, setOpen] = useState(false)
+  const t = useT()
   return (
     <>
       <button className={styles.trigger} onClick={() => setOpen(true)}>
-        Fairness
+        {t('fairness')}
       </button>
-      <Dialog open={open} onClose={() => setOpen(false)} title="Provably fair">
+      <Dialog open={open} onClose={() => setOpen(false)} title={t('provablyFair')}>
         <FairnessContent />
       </Dialog>
     </>
@@ -32,6 +34,7 @@ export function Dialog({
   children: ReactNode
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
+  const t = useT()
   useEffect(() => {
     if (open) dialog.current?.showModal()
     else dialog.current?.close()
@@ -53,7 +56,7 @@ export function Dialog({
             <button
               className={styles.close}
               onClick={() => dialog.current?.close()}
-              aria-label="Close"
+              aria-label={t('close')}
             >
               ×
             </button>
@@ -72,17 +75,15 @@ function FairnessContent() {
   const setClientSeed = useGame((s) => s.setClientSeed)
   const [draft, setDraft] = useState(clientSeed)
   const playing = round.phase === 'playing'
+  const t = useT()
 
   return (
     <>
-      <p className={styles.intro}>
-        Each Round's Hit Lane is HMAC-SHA256(Server Seed, Client Seed:nonce). The Server Seed's hash
-        is shown before you play and the seed itself after, so you can check nothing changed.
-      </p>
+      <p className={styles.intro}>{t('fairIntro')}</p>
 
       <section className={styles.section}>
-        <h3 className={styles.heading}>Next Round</h3>
-        <Field label="Server Seed hash (SHA-256)" value={next?.serverSeedHash ?? '…'} />
+        <h3 className={styles.heading}>{t('nextRound')}</h3>
+        <Field label={t('serverSeedHashSha')} value={next?.serverSeedHash ?? '…'} />
         <form
           className={styles.field}
           onSubmit={(e) => {
@@ -91,7 +92,7 @@ function FairnessContent() {
           }}
         >
           <label className={styles.label} htmlFor="client-seed">
-            Your Client Seed
+            {t('yourClientSeed')}
           </label>
           <div className={styles.row}>
             <input
@@ -106,17 +107,17 @@ function FairnessContent() {
               className={styles.save}
               disabled={playing || !draft.trim() || draft.trim() === clientSeed}
             >
-              Save
+              {t('save')}
             </button>
           </div>
-          {playing && <span className={styles.hint}>You can change it after this Round.</span>}
+          {playing && <span className={styles.hint}>{t('changeAfterRound')}</span>}
         </form>
-        <Field label="Nonce" value={String(next?.nonce ?? '…')} />
+        <Field label={t('nonce')} value={String(next?.nonce ?? '…')} />
       </section>
 
       {round.phase !== 'idle' && (
         <section className={styles.section}>
-          <h3 className={styles.heading}>{playing ? 'Current Round' : 'Last Round'}</h3>
+          <h3 className={styles.heading}>{t(playing ? 'currentRound' : 'lastRound')}</h3>
           <RoundProof round={round} />
         </section>
       )}
@@ -128,6 +129,7 @@ function FairnessContent() {
 export function RoundProof({ round }: { round: Round }) {
   const [check, setCheck] = useState<{ hitLane: number | null; hashOk: boolean } | null>(null)
   const { serverSeed, clientSeed, nonce, serverSeedHash, difficulty } = round
+  const t = useT()
 
   useEffect(() => {
     if (serverSeed === null || clientSeed === null || nonce === null) return
@@ -143,20 +145,21 @@ export function RoundProof({ round }: { round: Round }) {
 
   return (
     <>
-      <Field label="Server Seed hash" value={serverSeedHash ?? ''} />
-      <Field label="Server Seed" value={serverSeed ?? 'Revealed when the Round ends'} />
-      <Field label="Client Seed" value={clientSeed ?? ''} />
-      <Field label="Nonce" value={String(nonce ?? '')} />
-      <Field label="Difficulty" value={difficulty} />
+      <Field label={t('serverSeedHash')} value={serverSeedHash ?? ''} />
+      <Field label={t('serverSeed')} value={serverSeed ?? t('revealedLater')} />
+      <Field label={t('clientSeed')} value={clientSeed ?? ''} />
+      <Field label={t('nonce')} value={String(nonce ?? '')} />
+      <Field label={t('difficulty')} value={t(difficulty)} />
       {serverSeed !== null && check && (
         <div className={styles.verdict} data-ok={check.hashOk && matches(round, check.hitLane)}>
           <span>
-            Recomputed:{' '}
-            {check.hitLane === null ? 'no Hit on any Lane' : `Hit on Lane ${check.hitLane}`}
+            {t('recomputed', {
+              result: check.hitLane === null ? t('noHit') : t('hitOnLane', { lane: check.hitLane }),
+            })}
           </span>
-          <span>Played: {describe(round)}</span>
+          <span>{t('played', { result: describe(round, t) })}</span>
           <strong>
-            {check.hashOk && matches(round, check.hitLane) ? '✓ Verified' : '✗ Does not match'}
+            {t(check.hashOk && matches(round, check.hitLane) ? 'verified' : 'mismatch')}
           </strong>
         </div>
       )}
@@ -172,21 +175,22 @@ function matches(round: Round, hitLane: number | null) {
   return isWin(round.phase) && (hitLane === null || hitLane > round.lane)
 }
 
-function describe(round: Round) {
+function describe(round: Round, t: ReturnType<typeof useT>) {
   switch (round.phase) {
     case 'hit':
-      return `Hit on Lane ${round.lane}`
+      return t('hitOnLane', { lane: round.lane })
     case 'finished':
-      return 'reached the Finish'
+      return t('reachedFinish')
     case 'maxWin':
-      return `Max Win on Lane ${round.lane}`
+      return t('maxWinOnLane', { lane: round.lane })
     default:
-      return `cashed out on Lane ${round.lane}`
+      return t('cashedOutOnLane', { lane: round.lane })
   }
 }
 
 function Field({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false)
+  const t = useT()
   return (
     <div className={styles.field}>
       <span className={styles.label}>{label}</span>
@@ -194,7 +198,7 @@ function Field({ label, value }: { label: string; value: string }) {
         <code className={styles.value}>{value}</code>
         <button
           className={styles.copy}
-          aria-label={`Copy ${label}`}
+          aria-label={t('copyLabel', { label })}
           onClick={() =>
             void navigator.clipboard?.writeText(value).then(() => {
               setCopied(true)
@@ -202,7 +206,7 @@ function Field({ label, value }: { label: string; value: string }) {
             })
           }
         >
-          {copied ? 'Copied' : 'Copy'}
+          {t(copied ? 'copied' : 'copy')}
         </button>
       </div>
     </div>

@@ -10,11 +10,21 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 
 **Blocked by:** 03.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Top bar layout following cs2skin's game header (pill buttons, no glow); our own logo, not imitating the Counter-Strike logo
-- [ ] Settings menu with the auto-reset toggle wired to the scene behaviour from ticket 08 (if 08 is done; otherwise wire the store setting only)
-- [ ] Rules modal with RTP, all four tables, Max Win, and the client-side fairness note
-- [ ] Typed `en`/`ru` dictionary; a missing key is a type error; every UI string goes through it
-- [ ] Default language from `navigator.language` (ru → ru, otherwise en); choice and settings persisted
-- [ ] Time spent recorded at the bottom of this ticket
+- [x] Top bar layout following cs2skin's game header (pill buttons, no glow); our own logo, not imitating the Counter-Strike logo
+- [x] Settings menu with the auto-reset toggle wired to the scene behaviour from ticket 08 (if 08 is done; otherwise wire the store setting only)
+- [x] Rules modal with RTP, all four tables, Max Win, and the client-side fairness note
+- [x] Typed `en`/`ru` dictionary; a missing key is a type error; every UI string goes through it
+- [x] Default language from `navigator.language` (ru → ru, otherwise en); choice and settings persisted
+- [x] Time spent recorded at the bottom of this ticket
+
+**Notes:**
+
+- Settings (language, auto-reset) live in their own small persisted store, separate from the game.
+- The Russian dictionary is typed against the English keys, so a missing or misspelled key fails the build; messages use `{name}` placeholders.
+- `<html lang>` follows the chosen language.
+- Our own logo is the coin-and-chicken favicon with a violet glow plus a plain wordmark; nothing borrowed from the Counter-Strike logo.
+- Also in this change, requested during the ticket: after a win or a Hit the chicken now fades out where it stands and fades in at the start (no visible flight back), and it is drawn inside its cell, so it is centred on the start column again.
+
+**Time spent:** ~9 min (16:46–16:55, 2026-11-02).

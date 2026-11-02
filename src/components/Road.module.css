@@ -13,7 +13,7 @@
 .start,
 .lane,
 .finish {
-  flex: 0 0 140px;
+  flex: 0 0 140px; /* LANE_PX in timing.ts */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,7 +23,7 @@
 
 .start,
 .finish {
-  flex-basis: 120px;
+  flex-basis: 120px; /* START_PX in timing.ts */
   justify-content: flex-end;
   background: linear-gradient(#2a2418, #211c13);
 }
@@ -131,16 +131,6 @@
 .chicken {
   width: 84px;
   z-index: 1;
-}
-
-/* Positioned in the road's scrolling content; Road.tsx moves it by x to a cell's centre. */
-.chickenLayer {
-  position: absolute;
-  left: 0;
-  bottom: 32px;
-  width: 84px;
-  z-index: 1;
-  pointer-events: none;
 }
 
 .badge[data-full] {

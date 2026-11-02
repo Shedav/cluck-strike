@@ -2,34 +2,34 @@ import { useState } from 'react'
 import { formatCoins, formatMultiplier } from '../format'
 import { isWin, type Round } from '../game/round'
 import { useGame } from '../game/store'
+import { useT } from '../i18n'
 import { Coin } from './Coin'
 import { Dialog, RoundProof } from './Fairness'
 import styles from './RecentGames.module.css'
-
-const DIFFICULTY = { easy: 'Easy', medium: 'Medium', hard: 'Hard', hardcore: 'Hardcore' }
 
 /** The player's last 10 Rounds; each row opens that Round's fairness proof. */
 export function RecentGames() {
   const recentGames = useGame((s) => s.recentGames)
   const [selected, setSelected] = useState<Round | null>(null)
+  const t = useT()
 
   return (
     <section className={styles.panel} aria-labelledby="recent-games">
       <h2 id="recent-games" className={styles.title}>
-        Recent Games
+        {t('recentGames')}
       </h2>
       {recentGames.length === 0 ? (
-        <p className={styles.empty}>Your finished Rounds will show up here.</p>
+        <p className={styles.empty}>{t('recentEmpty')}</p>
       ) : (
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Difficulty</th>
-              <th>Bet</th>
-              <th>Multiplier</th>
-              <th>Payout</th>
+              <th>{t('difficulty')}</th>
+              <th>{t('bet')}</th>
+              <th>{t('multiplier')}</th>
+              <th>{t('payout')}</th>
               <th>
-                <span className={styles.srOnly}>Fairness</span>
+                <span className={styles.srOnly}>{t('fairness')}</span>
               </th>
             </tr>
           </thead>
@@ -42,7 +42,7 @@ export function RecentGames() {
                   className={won ? styles.win : styles.hit}
                   onClick={() => setSelected(round)}
                 >
-                  <td>{DIFFICULTY[round.difficulty]}</td>
+                  <td>{t(round.difficulty)}</td>
                   <td>
                     <Coin size={14} /> {formatCoins(round.betCents)}
                   </td>
@@ -60,7 +60,7 @@ export function RecentGames() {
                         setSelected(round)
                       }}
                     >
-                      Verify
+                      {t('verify')}
                     </button>
                   </td>
                 </tr>
@@ -69,7 +69,7 @@ export function RecentGames() {
           </tbody>
         </table>
       )}
-      <Dialog open={selected !== null} onClose={() => setSelected(null)} title="Round fairness">
+      <Dialog open={selected !== null} onClose={() => setSelected(null)} title={t('roundFairness')}>
         {selected && <RoundProof round={selected} />}
       </Dialog>
     </section>

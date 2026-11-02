@@ -1,0 +1,165 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 0 10px rgb(125 46 250 / 0.5));
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.tagline {
+  color: var(--text-subtle);
+  font-size: 13px;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill,
+.language {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+.pill:hover,
+.pill:focus-visible,
+.language:hover,
+.language:focus-visible {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.languages {
+  display: flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+}
+
+.language {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.language[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--text);
+}
+
+.balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.rules {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rules h3 {
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.rules p,
+.rules ol {
+  margin: 0;
+}
+
+.rules ol {
+  padding-left: 20px;
+}
+
+.table h4 {
+  margin: 4px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.rules .multipliers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.multipliers li {
+  padding: 2px 8px;
+  border-radius: var(--radius-chip);
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--text-body);
+}
+
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+
+.toggle span {
+  display: grid;
+  gap: 4px;
+}
+
+.toggle strong {
+  color: var(--text);
+}
+
+.toggle small {
+  color: var(--text-muted);
+  font-size: 13px;
+}

@@ -1,30 +1,54 @@
-import { motion, MotionConfig, useAnimate, useReducedMotion } from 'motion/react'
-import { Fragment, useEffect, useRef, useState, type RefObject } from 'react'
+import { AnimatePresence, motion, MotionConfig } from 'motion/react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { formatCoins, formatMultiplier } from '../format'
 import { maxWinLane, MULTIPLIERS } from '../game/odds'
 import { isWin } from '../game/round'
 import { useGame } from '../game/store'
+import { useT } from '../i18n'
+import { useSettings } from '../settings'
 import { Coin } from './Coin'
 import styles from './Road.module.css'
-import { HOP_MS, LANE_PX, RESULT_MS, SPRITES, STEP_MS, THROW_MS } from './timing'
+import { centreOf, HOP_MS, LANE_PX, RESULT_MS, SPRITES, STEP_MS, THROW_MS } from './timing'
 
 export function Road() {
   const round = useGame((s) => s.round)
   // Before a Round the dimming follows the Bet being typed; during and after, the Round's own Bet.
   const betCents = useGame((s) => (s.round.phase === 'idle' ? s.betCents : s.round.betCents))
   const capLane = maxWinLane(betCents, round.difficulty)
-  // Index 0 is the start column, 1..n the Lanes; the chicken layer aims at their centres.
+  const t = useT()
+  // Index 0 is the start column, 1..n the Lanes.
   const cells = useRef<(HTMLDivElement | null)[]>([])
   // The burn plays after the throw and the hop, so the Hit result stays up a bit longer.
-  const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS)
+  const autoReset = useSettings((s) => s.autoReset)
+  const burnt = useAfterDelay(round.phase === 'hit' && autoReset, round.nonce, STEP_MS + RESULT_MS)
   // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
   // fire stays on the Lane for a moment first.
   const lane = isWin(round.phase) || burnt ? 0 : round.lane
   const hitNow = round.phase === 'hit' && !burnt
 
+  // How the chicken got to `lane`: a Step forward (hop over from the previous cell) or a reset (fade
+  // out where it was, fade in at the start). Updated during render, React's "previous value" pattern.
+  const [shown, setShown] = useState<{ lane: number; move: Move }>({ lane, move: { kind: 'stay' } })
+  if (shown.lane !== lane) {
+    setShown({
+      lane,
+      move:
+        lane > shown.lane
+          ? { kind: 'step', distance: centreOf(lane) - centreOf(shown.lane) }
+          : { kind: 'reset' },
+    })
+  }
+  const move = shown.move
+
   useEffect(() => {
     cells.current[lane]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
   }, [lane])
+
+  const chickenIn = (n: number) => (
+    <AnimatePresence custom={move}>
+      {n === lane && <Chicken key={`${round.nonce}-${n}`} move={move} burning={n > 0 && hitNow} />}
+    </AnimatePresence>
+  )
 
   return (
     <MotionConfig reducedMotion="user">
@@ -34,7 +58,9 @@ export function Road() {
           animate={hitNow ? { x: [0, -8, 8, -6, 6, 0] } : { x: 0 }}
           transition={{ duration: 0.4, delay: STEP_MS / 1000 }}
         >
-          <div className={styles.start} ref={(el) => void (cells.current[0] = el)} />
+          <div className={styles.start} ref={(el) => void (cells.current[0] = el)}>
+            <div className={styles.ground}>{chickenIn(0)}</div>
+          </div>
           {MULTIPLIERS[round.difficulty].map((multiplier, i) => {
             const n = i + 1
             const state = n === lane && hitNow ? 'hit' : n <= lane ? 'passed' : 'ahead'
@@ -61,16 +87,16 @@ export function Road() {
                       <RoastedChicken />
                     </>
                   )}
+                  {chickenIn(n)}
                 </div>
               </div>
             )
           })}
-          <Chicken cells={cells} lane={lane} burning={hitNow} />
           <div className={styles.finish}>
             <motion.img
               className={styles.case}
               src={SPRITES.goldenCase}
-              alt="Golden case"
+              alt={t('goldenCase')}
               animate={
                 round.phase === 'finished' ? { scale: [1, 1.3, 1.15], rotate: [0, -8, 8, 0] } : {}
               }
@@ -84,72 +110,54 @@ export function Road() {
   )
 }
 
-const CHICKEN_PX = 84
+type Move = { kind: 'step'; distance: number } | { kind: 'reset' } | { kind: 'stay' }
+
+const FADE = { duration: 0.25 }
 
 /**
- * The chicken lives in its own layer over the road and moves by `x` to the centre of its cell:
- * after its grenade lands it hops one Lane on; when a Round ends it flies back to the start.
- * A burning chicken fades out as the roasted one appears in the Lane.
+ * The chicken is drawn in its own cell. On a Step it starts where the previous cell was and hops
+ * over once its grenade has landed; on a reset (win or Hit) the old one fades out and this one
+ * fades in at the start. A burning chicken fades out as the roasted one appears.
  */
-function Chicken({
-  cells,
-  lane,
-  burning,
-}: {
-  cells: RefObject<(HTMLDivElement | null)[]>
-  lane: number
-  burning: boolean
-}) {
-  const [scope, animate] = useAnimate<HTMLImageElement>()
-  const reduced = useReducedMotion()
-  const shownLane = useRef<number | null>(null)
-
-  useEffect(() => {
-    const cell = cells.current[lane]
-    if (!cell || !scope.current) return
-    const x = cell.offsetLeft + cell.offsetWidth / 2 - CHICKEN_PX / 2
-    const from = shownLane.current
-    shownLane.current = lane
-    if (from === null || reduced) {
-      void animate(scope.current, { x, y: 0 }, { duration: 0 })
-    } else if (lane > from) {
-      const hop = { delay: THROW_MS / 1000, duration: HOP_MS / 1000, ease: 'easeOut' } as const
-      void animate(scope.current, { x }, hop)
-      void animate(scope.current, { y: [0, -44, 0] }, hop)
-    } else if (lane < from) {
-      // Back to the start: one long arc, a bit longer the further it has to fly.
-      const fly = { duration: 0.5 + 0.05 * (from - lane), ease: 'easeInOut' } as const
-      void animate(scope.current, { x }, fly)
-      void animate(scope.current, { y: [0, -90, 0] }, fly)
-    }
-  }, [lane, cells, scope, animate, reduced])
-
-  // Cell widths change with the viewport; snap back to the cell centre without animating.
-  useEffect(() => {
-    const onResize = () => {
-      const cell = cells.current[shownLane.current ?? 0]
-      if (cell && scope.current) {
-        void animate(
-          scope.current,
-          { x: cell.offsetLeft + cell.offsetWidth / 2 - CHICKEN_PX / 2 },
-          { duration: 0 },
-        )
+function Chicken({ move, burning }: { move: Move; burning: boolean }) {
+  const t = useT()
+  const hop = { delay: THROW_MS / 1000, duration: HOP_MS / 1000, ease: 'easeOut' } as const
+  return (
+    <motion.img
+      className={styles.chicken}
+      src={SPRITES.chicken}
+      alt={t('chicken')}
+      custom={move}
+      variants={{
+        // The leaving chicken vanishes at once on a Step (the new one takes its place) and fades on
+        // a reset.
+        leave: (m: Move) => ({
+          opacity: 0,
+          transition: m.kind === 'reset' ? FADE : { duration: 0 },
+        }),
+      }}
+      exit="leave"
+      initial={
+        move.kind === 'step'
+          ? { x: -move.distance, y: 0, opacity: 1 }
+          : { x: 0, y: 0, opacity: move.kind === 'reset' ? 0 : 1 }
       }
-    }
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [cells, scope, animate])
-
-  useEffect(() => {
-    if (!scope.current) return
-    void animate(
-      scope.current,
-      { opacity: burning ? 0 : 1 },
-      burning ? { delay: STEP_MS / 1000 + 0.35, duration: 0.2 } : { duration: 0.2 },
-    )
-  }, [burning, scope, animate])
-
-  return <img ref={scope} className={styles.chickenLayer} src={SPRITES.chicken} alt="Chicken" />
+      animate={{
+        x: 0,
+        y: move.kind === 'step' ? [0, -44, 0] : 0,
+        opacity: burning ? 0 : 1,
+      }}
+      transition={{
+        x: hop,
+        y: hop,
+        opacity: burning
+          ? { delay: STEP_MS / 1000 + 0.35, duration: 0.2 }
+          : move.kind === 'reset'
+            ? { ...FADE, delay: FADE.duration }
+            : FADE,
+      }}
+    />
+  )
 }
 
 function RoastedChicken() {
@@ -157,7 +165,7 @@ function RoastedChicken() {
     <motion.img
       className={styles.chicken}
       src={SPRITES.chickenRoasted}
-      alt="Roasted chicken"
+      alt={useT()('roastedChicken')}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: STEP_MS / 1000 + 0.35, duration: 0.2 }}
@@ -254,8 +262,11 @@ function WinPopup() {
   const round = useGame((s) => s.round)
   const hidden = useAfterDelay(isWin(round.phase), round.nonce)
 
+  const t = useT()
   if (!isWin(round.phase) || hidden) return null
-  const title = { cashedOut: 'You win!', finished: 'Finish!', maxWin: 'Max Win!' }[round.phase]
+  const title = t(
+    ({ cashedOut: 'youWin', finished: 'finish', maxWin: 'maxWinReached' } as const)[round.phase],
+  )
   return (
     <div className={styles.popup} role="status" data-testid="win-popup">
       <span className={styles.popupTitle}>{title}</span>
