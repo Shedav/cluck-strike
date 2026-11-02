@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { verifyRound } from './fairness'
+import { sha256, verifyRound } from './fairness'
 import { createMockServer } from './mockServer'
 import type { Difficulty } from './odds'
 import { betError, canCashOut, canPlay, canTopUp, cashOutCents, createGameStore } from './store'
@@ -153,5 +153,34 @@ describe('game store', () => {
     game.getState().setDifficulty('hardcore')
     game.getState().setBet(5)
     expect(game.getState().round).toMatchObject({ difficulty: 'easy', betCents: 300 })
+  })
+
+  test('the next Server Seed hash is committed before Play and matches the seed revealed after', async () => {
+    const seed = await seedWithHitLane((lane) => lane === 1)
+    const game = gameWith(seed)
+    await game.getState().resume()
+    const committed = game.getState().next
+    expect(committed).toEqual({ serverSeedHash: await sha256(seed), nonce: 0 })
+
+    await game.getState().play()
+    expect(game.getState().round).toMatchObject({
+      phase: 'hit',
+      serverSeed: seed,
+      serverSeedHash: committed!.serverSeedHash,
+    })
+    expect(game.getState().next?.nonce).toBe(1)
+  })
+
+  test('a new Client Seed applies from the next Round, never mid-Round', async () => {
+    const game = gameWith(await seedWithHitLane((lane) => lane === null || lane > 2))
+    game.getState().setClientSeed('  my-seed  ')
+    expect(game.getState().clientSeed).toBe('my-seed')
+    game.getState().setClientSeed('   ')
+    expect(game.getState().clientSeed).toBe('my-seed')
+
+    await game.getState().play()
+    expect(game.getState().round.clientSeed).toBe('my-seed')
+    game.getState().setClientSeed('other')
+    expect(game.getState().clientSeed).toBe('my-seed')
   })
 })

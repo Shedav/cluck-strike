@@ -1,5 +1,6 @@
 import { BetPanel } from './components/BetPanel'
 import { Coin } from './components/Coin'
+import { FairnessButton } from './components/Fairness'
 import { Road } from './components/Road'
 import { formatCoins } from './format'
 import { useGame } from './game/store'
@@ -13,6 +14,7 @@ export default function App() {
       <header className={styles.header}>
         <h1 className={styles.title}>Cluck Strike</h1>
         <span className={styles.subtitle}>Cross the fire, cash out in time</span>
+        <FairnessButton />
         <span className={styles.balance} data-testid="balance">
           <Coin /> {formatCoins(balanceCents)}
         </span>

@@ -6,11 +6,20 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 
 **Blocked by:** 02.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Fairness button opens the modal
-- [ ] The modal shows the next Server Seed hash, the current Client Seed (editable between Rounds, not during) and the nonce; copy buttons on each value
-- [ ] After a Round: revealed Server Seed, Client Seed, nonce, Difficulty and the recomputed Hit Lane (or "no Hit"), plus a match indicator
-- [ ] Editing the Client Seed takes effect from the next Round
-- [ ] Store-seam test: after a Round, verify from the revealed values equals the actual result
-- [ ] Time spent recorded at the bottom of this ticket
+- [x] Fairness button opens the modal
+- [x] The modal shows the next Server Seed hash, the current Client Seed (editable between Rounds, not during) and the nonce; copy buttons on each value
+- [x] After a Round: revealed Server Seed, Client Seed, nonce, Difficulty and the recomputed Hit Lane (or "no Hit"), plus a match indicator
+- [x] Editing the Client Seed takes effect from the next Round
+- [x] Store-seam test: after a Round, verify from the revealed values equals the actual result
+- [x] Time spent recorded at the bottom of this ticket
+
+**Notes:**
+
+- The mock server now draws the next Server Seed one Round ahead (`nextRound()` returns its hash and nonce), so the hash is committed before the player can pick a Client Seed.
+- The modal is a native `<dialog>` (focus trap and Escape for free). The proof block (`RoundProof`) is a separate component so Recent Games (ticket 07) can reuse it per Round.
+- "Verified" checks both that SHA-256 of the revealed seed equals the committed hash and that the recomputed Hit Lane agrees with how the Round ended (a Cash Out must stop before it).
+- For now the Fairness button sits in the existing header; ticket 09 restyles the top bar.
+
+**Time spent:** ~4 min (16:26–16:30, 2026-11-02).

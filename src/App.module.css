@@ -24,8 +24,11 @@
   font-size: 14px;
 }
 
-.balance {
+.subtitle + * {
   margin-left: auto;
+}
+
+.balance {
   display: inline-flex;
   align-items: center;
   gap: 6px;

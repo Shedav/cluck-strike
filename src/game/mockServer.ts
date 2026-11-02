@@ -23,6 +23,8 @@ export interface GameServer {
   cashOut(): Promise<CashOutResult>
   /** The unfinished Round, without its Server Seed, so a reloaded client can continue it. */
   currentRound(): Promise<PublicRound | null>
+  /** The hash of the Server Seed and the nonce the next Round will use, committed in advance. */
+  nextRound(): Promise<{ serverSeedHash: string; nonce: number }>
 }
 
 export interface PublicRound {
@@ -41,6 +43,8 @@ interface ServerRound extends PublicRound {
 
 interface ServerState {
   nonce: number
+  /** Drawn ahead of time so its hash can be shown before the player picks a Client Seed. */
+  nextServerSeed: string
   round: ServerRound | null
 }
 
@@ -52,10 +56,11 @@ export function createMockServer({
   newSeed = randomSeed,
   storage,
 }: { newSeed?: () => string; storage?: KeyValueStorage } = {}): GameServer {
-  const state = load(storage)
+  const state = load(storage, newSeed)
   // Every mutation is saved before the method returns, with no await in between, so a reload
   // can't land between the server's state and the client's.
   const save = () => storage?.setItem(STORAGE_KEY, JSON.stringify(state))
+  save() // a freshly drawn next Server Seed must survive a reload, or its shown hash would change
 
   function active(): ServerRound {
     if (!state.round) throw new Error('No Round in progress')
@@ -70,12 +75,13 @@ export function createMockServer({
   return {
     async startRound({ betCents, difficulty, clientSeed }) {
       if (state.round) throw new Error('A Round is already in progress')
-      const serverSeed = newSeed()
+      const serverSeed = state.nextServerSeed
       const nonce = state.nonce
       const hitLane = await verifyRound(serverSeed, clientSeed, nonce, difficulty)
       const serverSeedHash = await sha256(serverSeed)
       if (state.round) throw new Error('A Round is already in progress')
       state.nonce++
+      state.nextServerSeed = newSeed()
       state.round = {
         serverSeed,
         serverSeedHash,
@@ -120,6 +126,10 @@ export function createMockServer({
       }
     },
 
+    async nextRound() {
+      return { serverSeedHash: await sha256(state.nextServerSeed), nonce: state.nonce }
+    },
+
     async currentRound() {
       if (!state.round) return null
       const { difficulty, betCents, lane, serverSeedHash, clientSeed, nonce } = state.round
@@ -147,14 +157,18 @@ function isServerRound(r: unknown): r is ServerRound {
 }
 
 /** Saved state, or a fresh one when it is missing or unreadable. */
-function load(storage?: KeyValueStorage): ServerState {
+function load(storage: KeyValueStorage | undefined, newSeed: () => string): ServerState {
   try {
     const saved = JSON.parse(storage?.getItem(STORAGE_KEY) ?? 'null') as Partial<ServerState>
-    if (isInt(saved?.nonce) && (saved.round === null || isServerRound(saved.round))) {
-      return { nonce: saved.nonce, round: saved.round }
+    if (
+      isInt(saved?.nonce) &&
+      typeof saved.nextServerSeed === 'string' &&
+      (saved.round === null || isServerRound(saved.round))
+    ) {
+      return { nonce: saved.nonce, nextServerSeed: saved.nextServerSeed, round: saved.round }
     }
   } catch {
     // Corrupted JSON: start fresh below.
   }
-  return { nonce: 0, round: null }
+  return { nonce: 0, nextServerSeed: newSeed(), round: null }
 }

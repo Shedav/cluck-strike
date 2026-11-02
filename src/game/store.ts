@@ -10,12 +10,16 @@ export interface GameState {
   balanceCents: number
   betCents: number
   clientSeed: string
+  /** Commitment for the next Round: the hash of its Server Seed and its nonce. */
+  next: { serverSeedHash: string; nonce: number } | null
   round: Round
   /** A server call is in flight; further actions are ignored until it settles. */
   pending: boolean
   setBet(betCents: number): void
   setDifficulty(difficulty: Difficulty): void
   topUp(): void
+  /** Changes the Client Seed for the next Round; ignored mid-Round or when blank. */
+  setClientSeed(clientSeed: string): void
   play(): Promise<void>
   go(): Promise<void>
   cashOut(): Promise<void>
@@ -109,9 +113,14 @@ export function createGameStore({
           set({ pending: true })
           try {
             await task()
+            if (get().round.phase !== 'playing') await refreshNext()
           } finally {
             set({ pending: false })
           }
+        }
+
+        async function refreshNext() {
+          set({ next: await server.nextRound() })
         }
 
         async function step() {
@@ -128,11 +137,17 @@ export function createGameStore({
           balanceCents,
           betCents: 300,
           clientSeed,
+          next: null,
           round: idleRound('easy'),
           pending: false,
 
           setBet(betCents) {
             if (get().round.phase !== 'playing') set({ betCents })
+          },
+
+          setClientSeed(clientSeed) {
+            const seed = clientSeed.trim()
+            if (seed && get().round.phase !== 'playing') set({ clientSeed: seed })
           },
 
           topUp() {
@@ -181,7 +196,7 @@ export function createGameStore({
           async resume() {
             // Not behind `pending`: it must not block a click; it backs off if the Round moved on.
             const before = get().round
-            const live = await server.currentRound()
+            const [live] = await Promise.all([server.currentRound(), refreshNext()])
             if (get().round !== before) return
             if (live) {
               set({ round: { ...started(idleRound(live.difficulty), live), lane: live.lane } })
