@@ -40,6 +40,8 @@
 
 .pill,
 .language {
+  display: inline-grid;
+  place-items: center;
   height: 36px;
   min-width: 36px;
   padding: 0 14px;
@@ -52,6 +54,10 @@
   transition:
     background var(--transition),
     color var(--transition);
+}
+
+.pill[aria-pressed='true'] {
+  color: var(--text);
 }
 
 .pill:hover,
