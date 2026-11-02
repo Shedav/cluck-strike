@@ -33,3 +33,5 @@ Buttons are locked while an animation plays. After a Hit the burn animation play
 - A finished Round is no longer persisted, so a reload after a win starts at the start line instead of replaying the win popup (bug reported during this ticket).
 
 **Time spent:** ~6 min (16:17–16:23, 2026-11-02).
+
+**Follow-up (requested after the ticket):** each Step now starts with the chicken throwing a smoke grenade at the next Lane (`THROW_MS`), then hopping (`HOP_MS`). On a safe Step the grenade lands and Smoke puts the fire out; on a Hit it flies past and the chicken burns. Badge colours change in sync with the animation, not when the result arrives.

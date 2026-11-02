@@ -64,6 +64,14 @@
   width: 110px;
   z-index: 2;
   pointer-events: none;
+  /* cs2skin's violet glow on the Smoke, so a safe Step reads as the site's accent. */
+  filter: drop-shadow(0 0 18px rgb(125 46 250 / 0.6));
+}
+
+.grenade {
+  width: 28px;
+  z-index: 3;
+  filter: drop-shadow(0 0 8px rgb(125 46 250 / 0.7));
 }
 
 .case {
@@ -103,15 +111,20 @@
 .passed .badge {
   border-color: var(--win);
   color: var(--win);
+  /* Turns green when the grenade lands (THROW_MS), not when the Step is decided. */
+  transition-delay: 0.45s;
 }
 
 .hit {
   background: rgb(237 68 56 / 0.12);
+  transition: background 0.2s 0.9s;
 }
 
 .hit .badge {
   border-color: var(--hit);
   color: var(--hit);
+  /* Turns red when the chicken lands in the fire (STEP_MS). */
+  transition-delay: 0.9s;
 }
 
 .chicken {

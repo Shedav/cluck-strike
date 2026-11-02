@@ -6,8 +6,9 @@ Test task: a playable browser game of chance in the genre of Chicken Road that l
 
 - **Name:** Cluck Strike.
 - **Theme:** the CS chicken (a well-known CS easter egg) crosses a dusty street in the style of CS maps; the Lanes are burning with molotov fire.
-  - Safe Step: a Smoke cloud lands and puts the fire out on that Lane.
-  - Hit: the fire flares up and the chicken gets roasted.
+  - Every Step: the chicken throws a smoke grenade at the next Lane, then hops onto it.
+  - Safe Step: the grenade lands, a Smoke cloud (with cs2skin's violet glow) puts the fire out, and the chicken hops into the smoke.
+  - Hit: the grenade flies past, the chicken hops into the fire, it flares up and the chicken gets roasted.
   - Finish: a golden case.
   - Fallback theme if this one does not work out: fire bursting from manholes.
 - No Valve or cs2skin logos, map names or assets. The logo is our own and does not imitate the Counter-Strike logo.
