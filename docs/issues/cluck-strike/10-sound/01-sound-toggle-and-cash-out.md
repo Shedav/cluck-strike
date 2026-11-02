@@ -9,7 +9,7 @@ Parent: [10 Sound](../10-sound.md)
 **Status:** done
 
 - [x] Sound button in the top bar, labelled for screen readers in English and Russian; state shown with 🔊/🔇
-- [x] Sound on by default; the choice is persisted with the other settings in `localStorage`
+- [x] Sound on by default; the choice is persisted with the language in `localStorage`
 - [x] Sound engine created lazily; nothing plays before the first user interaction (browser autoplay rules), and a blocked or missing `AudioContext` never breaks the game
 - [x] Coin chime synthesized with Web Audio (no audio files) plays on a Cash Out, and only when sound is on
 - [x] Respects the toggle immediately, including mid-Round

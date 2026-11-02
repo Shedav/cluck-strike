@@ -5,7 +5,6 @@ const en = {
   balance: 'Balance',
   fairness: 'Fairness',
   rules: 'Rules',
-  settings: 'Settings',
   sound: 'Sound',
   language: 'Language',
   close: 'Close',
@@ -72,10 +71,6 @@ const en = {
   copied: 'Copied',
   copyLabel: 'Copy {label}',
 
-  autoReset: 'Auto-reset after Hit',
-  autoResetHint:
-    'After a Hit the chicken returns to the start. Turn off to keep the result on screen until the next Play.',
-
   rulesHowTo: 'How to play',
   rulesStep1:
     'Pick a Bet and a Difficulty, then press Play: the Bet is taken and the chicken makes its first Step.',
@@ -103,7 +98,6 @@ const ru: Record<MessageKey, string> = {
   balance: 'Баланс',
   fairness: 'Честность',
   rules: 'Правила',
-  settings: 'Настройки',
   sound: 'Звук',
   language: 'Язык',
   close: 'Закрыть',
@@ -169,10 +163,6 @@ const ru: Record<MessageKey, string> = {
   copy: 'Копировать',
   copied: 'Скопировано',
   copyLabel: 'Копировать: {label}',
-
-  autoReset: 'Сброс после проигрыша',
-  autoResetHint:
-    'После проигрыша курица возвращается на старт. Выключите, чтобы результат оставался на экране до следующей игры.',
 
   rulesHowTo: 'Как играть',
   rulesStep1:

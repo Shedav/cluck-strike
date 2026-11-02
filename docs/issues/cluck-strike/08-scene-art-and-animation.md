@@ -19,7 +19,7 @@ Buttons are locked while an animation plays. After a Hit the burn animation play
 - [x] Animations with Framer Motion (DOM, no canvas): hop, Smoke, flare-up and roast, golden case at the Finish, idle fire flicker on upcoming Lanes
 - [x] Animations play after the store already knows the result (ADR 0001); the UI holds an "animating" lock so double clicks can't make extra Steps
 - [x] About 5 Lanes visible on desktop; the camera follows the chicken
-- [x] Auto-reset of the scene 2 s after a Hit (the setting toggle comes in ticket 09; default on)
+- [x] The scene resets after the Hit's burn animation
 - [x] `prefers-reduced-motion`: shorter animations, no shaking
 - [x] No Valve or cs2skin assets, logos or map names
 - [x] Time spent recorded at the bottom of this ticket

@@ -5,7 +5,6 @@ import { maxWinLane, MULTIPLIERS } from '../game/odds'
 import { isWin } from '../game/round'
 import { useGame } from '../game/store'
 import { useT } from '../i18n'
-import { useSettings } from '../settings'
 import { playSound } from '../sound'
 import { Coin } from './Coin'
 import styles from './Road.module.css'
@@ -20,10 +19,7 @@ export function Road() {
   // Index 0 is the start column, 1..n the Lanes.
   const cells = useRef<(HTMLDivElement | null)[]>([])
   // The burn plays after the throw and the hop, so the Hit result stays up a bit longer.
-  const autoReset = useSettings((s) => s.autoReset)
-  // The toggle only decides whether the reset timer runs; turning it off never brings back a Hit
-  // that was already cleared.
-  const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS, autoReset)
+  const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS)
   // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
   // fire stays on the Lane for a moment first.
   const lane = isWin(round.phase) || burnt ? 0 : round.lane
@@ -266,14 +262,14 @@ function Badge({ multiplier }: { multiplier: number }) {
   )
 }
 
-/** True once `active` has held for `ms` (while `running`) within the Round identified by `nonce`. */
-function useAfterDelay(active: boolean, nonce: number | null, ms = RESULT_MS, running = true) {
+/** True once `active` has held for `ms` within the Round identified by `nonce`. */
+function useAfterDelay(active: boolean, nonce: number | null, ms = RESULT_MS) {
   const [doneFor, setDoneFor] = useState<number | null>(null)
   useEffect(() => {
-    if (!active || !running) return
+    if (!active) return
     const timer = setTimeout(() => setDoneFor(nonce), ms)
     return () => clearTimeout(timer)
-  }, [active, nonce, ms, running])
+  }, [active, nonce, ms])
   return active && doneFor === nonce
 }
 

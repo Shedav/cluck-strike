@@ -25,7 +25,7 @@ Test task: a playable browser game of chance in the genre of Chicken Road that l
   - on **Finish**, i.e. the last Lane is crossed safely;
   - on **Max Win**, i.e. when Bet × Multiplier reaches 10,000. The payout is exactly 10,000 and the Round ends.
 - **After a win** (Cash Out, Finish, Max Win) the chicken returns to the start and a popup shows the Multiplier and payout for 2 s. No status line.
-- **After a Hit** the fire (later a burn animation) shows on the Lane for 2 s, then the chicken returns to the start. A setting ("Auto-reset after Hit", on by default) can turn this off, so the result stays on screen until the next Play.
+- **After a Hit** the burn animation plays on the Lane, then the chicken returns to the start.
 - **Reloading the page** mid-Round restores the Round exactly where it was.
 
 ### Difficulty and odds
@@ -52,7 +52,7 @@ The outcome is predetermined, as described in [ADR 0001](adr/0001-predetermined-
 - Bet limits are min 0.01 and max 150, with a default of 3.
 - Bet controls: MIN, the input, MAX, and preset chips 2 / 3 / 8 / 20. All Bet and Difficulty controls are disabled during a Round.
 - The starting Balance is 1,000. A "Top up demo balance" button appears when the Balance is below the minimum Bet.
-- Balance, the Round in progress, Recent Games, language and settings persist in `localStorage`.
+- Balance, the Round in progress, Recent Games, language and sound persist in `localStorage`.
 
 ### Recent Games
 
@@ -67,7 +67,7 @@ Recent Games lists the player's last 10 finished Rounds: Difficulty, Bet, Multip
   - Font: Chakra Petch. Buttons are pill-shaped with quick 0.16–0.2 s transitions.
 - **Currency:** our own gold coin icon in cs2skin style, placed before the number, with no `$`. Up to 2 decimals and thousands separators (`1,234.56`).
 - **Layout:**
-  - **Top bar:** name, Balance, EN/RU, sound, Fairness, rules, settings.
+  - **Top bar:** name, Balance, EN/RU, sound, Fairness, rules.
   - **Scene:** about 5 Lanes visible on desktop and about 2 on mobile. The camera scrolls sideways after the chicken. Each Lane has a Multiplier badge, shown compact (`41.3Kx`, `2.54Mx`) with the full value in a tooltip. Badges beyond the Max Win Lane are dimmed.
   - **Bottom panel:** Bet controls, Difficulty tabs, then Play, which turns into GO plus Cash Out showing Bet × current Multiplier.
   - **Below the game:** Recent Games.

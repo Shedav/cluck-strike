@@ -16,7 +16,7 @@ export function TopBar() {
   const soundOn = useSettings((s) => s.soundOn)
   const setSoundOn = useSettings((s) => s.setSoundOn)
   const t = useT()
-  const [dialog, setDialog] = useState<'rules' | 'settings' | null>(null)
+  const [rulesOpen, setRulesOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.lang = language
@@ -34,7 +34,7 @@ export function TopBar() {
 
       <nav className={styles.tools}>
         <FairnessButton />
-        <button className={styles.pill} onClick={() => setDialog('rules')}>
+        <button className={styles.pill} onClick={() => setRulesOpen(true)}>
           {t('rules')}
         </button>
         <button
@@ -44,13 +44,6 @@ export function TopBar() {
           aria-pressed={soundOn}
         >
           {soundOn ? '🔊' : '🔇'}
-        </button>
-        <button
-          className={styles.pill}
-          onClick={() => setDialog('settings')}
-          aria-label={t('settings')}
-        >
-          ⚙
         </button>
         <div className={styles.languages} role="group" aria-label={t('language')}>
           {(['en', 'ru'] as Language[]).map((l) => (
@@ -69,11 +62,8 @@ export function TopBar() {
         </span>
       </nav>
 
-      <Dialog open={dialog === 'rules'} onClose={() => setDialog(null)} title={t('rules')}>
+      <Dialog open={rulesOpen} onClose={() => setRulesOpen(false)} title={t('rules')}>
         <Rules />
-      </Dialog>
-      <Dialog open={dialog === 'settings'} onClose={() => setDialog(null)} title={t('settings')}>
-        <SettingsForm />
       </Dialog>
     </header>
   )
@@ -110,20 +100,5 @@ function Rules() {
       <h3>{t('rulesDemo')}</h3>
       <p>{t('rulesDemoText')}</p>
     </div>
-  )
-}
-
-function SettingsForm() {
-  const t = useT()
-  const autoReset = useSettings((s) => s.autoReset)
-  const setAutoReset = useSettings((s) => s.setAutoReset)
-  return (
-    <label className={styles.toggle}>
-      <input type="checkbox" checked={autoReset} onChange={(e) => setAutoReset(e.target.checked)} />
-      <span>
-        <strong>{t('autoReset')}</strong>
-        <small>{t('autoResetHint')}</small>
-      </span>
-    </label>
   )
 }

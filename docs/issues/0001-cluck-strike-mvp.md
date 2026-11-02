@@ -70,51 +70,50 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 24. As a player, I want Bet and Difficulty controls to be locked during a Round, so that nothing changes mid-Round.
 25. As a player, I want buttons to be locked while a Step animation plays, so that double clicks don't make extra Steps.
 26. As a player, I want the scene to reset 2 seconds after a Hit, so that I can quickly play again.
-27. As a player, I want a setting to keep the Hit result on screen until the next Play, so that I can study where I lost.
-28. As a player who reloads the page mid-Round, I want the Round restored exactly where it was, so that a reload neither loses nor rescues my Bet.
-29. As a keyboard player, I want Space for Play/GO and Enter for Cash Out, so that I can play without the mouse.
+27. As a player who reloads the page mid-Round, I want the Round restored exactly where it was, so that a reload neither loses nor rescues my Bet.
+28. As a keyboard player, I want Space for Play/GO and Enter for Cash Out, so that I can play without the mouse.
 
 ### Fairness
 
-30. As a player, I want to see the hash of the next Server Seed before I Play, so that I know the outcome is already fixed.
-31. As a player, I want to see and change my Client Seed, so that the game can't pick the outcome alone.
-32. As a player, I want the Server Seed revealed after the Round, so that I can check the result myself.
-33. As a player, I want a Fairness modal that recomputes the Hit Lane from the revealed seeds and nonce, so that I can verify the Round in one click.
-34. As a player, I want to open Fairness for any Round in Recent Games, so that I can verify past Rounds too.
-35. As a player, I want the rules to state the RTP (98%), the Multiplier tables, the Max Win, and that Max Win slightly lowers RTP on large Bets, so that the odds are transparent.
-36. As a curious player, I want the rules to say that this demo's fairness runs in the browser, so that I'm not misled about its guarantees.
+29. As a player, I want to see the hash of the next Server Seed before I Play, so that I know the outcome is already fixed.
+30. As a player, I want to see and change my Client Seed, so that the game can't pick the outcome alone.
+31. As a player, I want the Server Seed revealed after the Round, so that I can check the result myself.
+32. As a player, I want a Fairness modal that recomputes the Hit Lane from the revealed seeds and nonce, so that I can verify the Round in one click.
+33. As a player, I want to open Fairness for any Round in Recent Games, so that I can verify past Rounds too.
+34. As a player, I want the rules to state the RTP (98%), the Multiplier tables, the Max Win, and that Max Win slightly lowers RTP on large Bets, so that the odds are transparent.
+35. As a curious player, I want the rules to say that this demo's fairness runs in the browser, so that I'm not misled about its guarantees.
 
 ### Recent Games
 
-37. As a player, I want a Recent Games list of my last 10 Rounds with Difficulty, Bet, Multiplier and payout, so that I can track how I'm doing.
-38. As a player, I want wins and Hits colored differently in Recent Games, so that I can scan results at a glance.
-39. As a player, I want Recent Games to survive a reload, so that my history isn't lost.
+36. As a player, I want a Recent Games list of my last 10 Rounds with Difficulty, Bet, Multiplier and payout, so that I can track how I'm doing.
+37. As a player, I want wins and Hits colored differently in Recent Games, so that I can scan results at a glance.
+38. As a player, I want Recent Games to survive a reload, so that my history isn't lost.
 
-### Settings, language, sound
+### Language and sound
 
-40. As a Russian-speaking player, I want to switch the UI to Russian (English is the default), so that I can play in my language.
-41. As a player, I want to switch between EN and RU and have my choice remembered, so that it sticks between visits.
-42. As a player, I want sound effects for Step, Smoke, Hit and Cash Out, off by default with a toggle in the top bar, so that I decide whether the game makes noise.
-43. As a player, I want my settings (sound, language, auto-reset) remembered, so that I don't set them every time.
+39. As a Russian-speaking player, I want to switch the UI to Russian (English is the default), so that I can play in my language.
+40. As a player, I want to switch between EN and RU and have my choice remembered, so that it sticks between visits.
+41. As a player, I want sound effects for Step, Smoke, Hit and Cash Out, off by default with a toggle in the top bar, so that I decide whether the game makes noise.
+42. As a player, I want my sound and language choices remembered, so that I don't set them every time.
 
 ### Look, layout, accessibility
 
-44. As a cs2skin visitor, I want the game to use the site's dark purple look, Chakra Petch font and pill buttons, so that it feels native to the site.
-45. As a desktop player, I want about 5 Lanes visible, the Bet panel at the bottom and Recent Games below, so that everything fits on one screen.
-46. As a mobile player, I want about 2 large Lanes visible, a stacked Bet panel and a Difficulty dropdown, so that the game is comfortable on a phone.
-47. As a player, I want large Multipliers shown compactly in badges (`41.3Kx`, `2.54Mx`) with the full value on hover/focus, so that badges stay readable.
-48. As a screen-reader user, I want Step results and Cash Outs announced, so that I can follow the Round without seeing it.
-49. As a player with reduced-motion enabled, I want shorter animations without shaking, so that the game is comfortable to watch.
-50. As a keyboard user, I want every control reachable and visibly focused, so that I can play without a mouse.
+43. As a cs2skin visitor, I want the game to use the site's dark purple look, Chakra Petch font and pill buttons, so that it feels native to the site.
+44. As a desktop player, I want about 5 Lanes visible, the Bet panel at the bottom and Recent Games below, so that everything fits on one screen.
+45. As a mobile player, I want about 2 large Lanes visible, a stacked Bet panel and a Difficulty dropdown, so that the game is comfortable on a phone.
+46. As a player, I want large Multipliers shown compactly in badges (`41.3Kx`, `2.54Mx`) with the full value on hover/focus, so that badges stay readable.
+47. As a screen-reader user, I want Step results and Cash Outs announced, so that I can follow the Round without seeing it.
+48. As a player with reduced-motion enabled, I want shorter animations without shaking, so that the game is comfortable to watch.
+49. As a keyboard user, I want every control reachable and visibly focused, so that I can play without a mouse.
 
 ### Reviewer / developer
 
-51. As a reviewer, I want a public repository with a clean Conventional Commits history, so that I can follow how the work was done.
-52. As a reviewer, I want a deployed link, so that I can play without building anything.
-53. As a reviewer, I want a README with a time log, the decisions and links to ADRs, so that I can judge the trade-offs.
-54. As a developer, I want the Server Seed handling behind a single mock server module, so that a real backend can replace it without touching the UI.
-55. As a developer, I want sprites under fixed names, so that AI-generated art can replace the placeholder packs without code changes.
-56. As a developer, I want CI to run lint, tests and build on every push, so that main always works.
+50. As a reviewer, I want a public repository with a clean Conventional Commits history, so that I can follow how the work was done.
+51. As a reviewer, I want a deployed link, so that I can play without building anything.
+52. As a reviewer, I want a README with a time log, the decisions and links to ADRs, so that I can judge the trade-offs.
+53. As a developer, I want the Server Seed handling behind a single mock server module, so that a real backend can replace it without touching the UI.
+54. As a developer, I want sprites under fixed names, so that AI-generated art can replace the placeholder packs without code changes.
+55. As a developer, I want CI to run lint, tests and build on every push, so that main always works.
 
 ## Implementation Decisions
 
@@ -142,17 +141,17 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 - **Game store** (Zustand + persist). This is the single public API the UI talks to:
   - player actions: Play, GO, Cash Out;
   - Bet and Difficulty setters, Client Seed setter, top-up;
-  - settings toggles (sound, language, auto-reset after Hit);
+  - language and sound toggles;
   - derived values: Cash Out amount, Max Win Lane, whether each action is allowed.
-  - It persists Balance, the Round in progress, Recent Games (last 10 Rounds) and settings.
+  - It persists Balance, the Round in progress and Recent Games (last 10 Rounds); language and sound are persisted separately.
 - **i18n.** A small typed `en`/`ru` dictionary. A missing key is a type error. The default language is English.
 - **Sound.** Four effects, lazily loaded and gated by the sound setting.
 - **UI components:**
-  - Top bar: name, Balance, language, sound, Fairness, rules, settings.
+  - Top bar: name, Balance, language, sound, Fairness, rules.
   - Scene: Lanes, Multiplier badges, chicken, fire / Smoke / flare-up, golden case at the Finish.
   - Bet panel: MIN, input, MAX, chips, Difficulty tabs or dropdown, Play / GO / Cash Out.
   - Recent Games.
-  - Fairness, rules and settings modals.
+  - Fairness and rules modals.
 
 ### Behaviour details
 
@@ -161,7 +160,7 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 - Auto Cash Out happens on Finish and when Bet × Multiplier ≥ Max Win. In the Max Win case the payout is exactly Max Win.
 - Multipliers and payouts are shown with 2 decimals. Badges use a compact form above 1,000.
 - Animations are cosmetic and run after the store knows the result (ADR 0001). The UI keeps its own "animating" lock on top of the store's phase guard.
-- After a Hit, the scene auto-resets after 2 s unless the setting is off. The Round itself is already finished in the store either way.
+- After a Hit, the burn plays and then the scene resets; the Round itself is already finished in the store.
 - The stack is DOM + Framer Motion, with no canvas. CSS Modules use CSS variables for the cs2skin palette.
 
 ## Testing Decisions
