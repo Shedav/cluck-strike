@@ -6,9 +6,10 @@ import { maxWinLane, MULTIPLIERS } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
 import { formatCoins, formatMultiplier, playSound } from '@/shared/lib'
 import { Coin, PixelSprite } from '@/shared/ui'
-import { centreOf, LANE_PX, SPRITES } from '../config'
+import { centreOf, LANE_PX } from '../config'
 import { BURN } from '../pixel/burn'
 import { GOLDEN_CASE } from '../pixel/case'
+import { FIRE, GRENADE, SMOKE } from '../pixel/props'
 import { CHICKEN } from '../pixel/chicken'
 import styles from './Road.module.css'
 
@@ -112,7 +113,15 @@ export function Road() {
               >
                 <Badge multiplier={multiplier} />
                 <div className={styles.ground}>
-                  {state === 'ahead' && <img className={styles.fire} src={SPRITES.fire} alt="" />}
+                  {state === 'ahead' && (
+                    <PixelSprite
+                      className={styles.fire}
+                      frames={FIRE}
+                      ms={FIRE_MS}
+                      loop
+                      width={64}
+                    />
+                  )}
                   {/* Only for a Step seen on screen: after a reload the chicken just stands there. */}
                   {n === lane && move.kind === 'step' && (round.phase === 'playing' || stepWin) && (
                     <Fragment key={`step-${round.nonce}-${n}`}>
@@ -248,10 +257,8 @@ const BURN_MS = 1500
 /** The smoke grenade arcs from the chicken's Lane: onto this Lane's fire, or past it on a Hit. */
 function Grenade({ miss }: { miss: boolean }) {
   return (
-    <motion.img
+    <motion.div
       className={styles.grenade}
-      src={SPRITES.smokeGrenade}
-      alt=""
       initial={{ x: -LANE_PX, y: -40, rotate: 0, opacity: 0 }}
       animate={{
         x: [-LANE_PX, miss ? LANE_PX * 0.2 : -LANE_PX / 2, miss ? LANE_PX * 1.1 : 0],
@@ -266,37 +273,42 @@ function Grenade({ miss }: { miss: boolean }) {
         times: [0, 0.5, 1],
         opacity: { duration: THROW_MS / 1000, times: [0, 0.33, 0.34, 0.5, 1] },
       }}
-    />
+    >
+      <PixelSprite frames={GRENADE} ms={0} width={24} />
+    </motion.div>
   )
 }
 
 /** A safe Step: the Lane's fire dies as the grenade lands... */
 function DousedFire() {
   return (
-    <motion.img
-      className={styles.fire}
-      src={SPRITES.fire}
-      alt=""
+    <motion.div
+      className={styles.doused}
       initial={{ opacity: 1, scale: 1 }}
       animate={{ opacity: 0, scale: 0.4 }}
       transition={{ delay: THROW_MS / 1000, duration: 0.25 }}
-    />
+    >
+      <PixelSprite frames={FIRE} ms={FIRE_MS} loop width={64} />
+    </motion.div>
   )
 }
 
-/** ...and a Smoke cloud bursts out and drifts away. */
+/** ...and a Smoke cloud bursts out, billows and drifts away. */
 function SmokePuff() {
   return (
-    <motion.img
+    <motion.div
       className={styles.smoke}
-      src={SPRITES.smoke}
-      alt=""
-      initial={{ opacity: 0, scale: 0.3 }}
-      animate={{ opacity: [0, 1, 1, 0], scale: [0.3, 1.4, 1.6, 1.9], y: [0, -10, -20, -40] }}
-      transition={{ duration: 1.2, times: [0, 0.2, 0.6, 1], delay: THROW_MS / 1000 }}
-    />
+      initial={{ opacity: 0 }}
+      animate={{ opacity: [0, 1, 1, 0], y: [0, -10, -20, -40] }}
+      transition={{ duration: SMOKE_MS / 1000, times: [0, 0.1, 0.7, 1], delay: THROW_MS / 1000 }}
+    >
+      <PixelSprite frames={SMOKE} ms={SMOKE_MS} delay={THROW_MS} width={120} />
+    </motion.div>
   )
 }
+
+const FIRE_MS = 600
+const SMOKE_MS = 1200
 
 function Badge({ multiplier }: { multiplier: number }) {
   const text = formatMultiplier(multiplier)

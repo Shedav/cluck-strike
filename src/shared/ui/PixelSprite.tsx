@@ -7,6 +7,8 @@ type Props = {
   /** How long all the frames take to play once. */
   ms: number
   loop?: boolean
+  /** Waits this long on the first frame before playing. */
+  delay?: number
   /** Rendered width; a whole multiple of the frame width keeps every pixel the same size. */
   width: number
   alt?: string
@@ -17,13 +19,22 @@ type Props = {
  * Plays pixel frames as a sprite sheet stepped by CSS. A one-off animation stays on its last
  * frame; to replay it, remount the sprite (give it a new key). Reduced motion shows the first frame.
  */
-export function PixelSprite({ frames, ms, loop = false, width, alt = '', className = '' }: Props) {
+export function PixelSprite({
+  frames,
+  ms,
+  loop = false,
+  delay = 0,
+  width,
+  alt = '',
+  className = '',
+}: Props) {
   const src = useMemo(() => spriteSheet(frames), [frames])
   const style = {
     width,
     aspectRatio: `${frames[0][0].length} / ${frames[0].length}`,
     '--frames': frames.length,
     '--ms': `${ms}ms`,
+    '--delay': `${delay}ms`,
     '--iterations': loop ? 'infinite' : 1,
   } as CSSProperties
   return (

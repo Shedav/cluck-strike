@@ -2,7 +2,7 @@
 .sprite {
   object-fit: cover;
   object-position: 0 0;
-  animation: play var(--ms) steps(var(--frames), jump-none) var(--iterations) both;
+  animation: play var(--ms) steps(var(--frames), jump-none) var(--delay) var(--iterations) both;
 }
 
 @keyframes play {

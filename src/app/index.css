@@ -30,6 +30,8 @@
   --transition: 0.18s ease-out;
 
   --font: 'Chakra Petch', system-ui, sans-serif;
+  /* Multipliers and the win popup, like cs2skin's crash. */
+  --font-pixel: 'Pixelify Sans', var(--font);
 
   color-scheme: dark;
   font-family: var(--font);

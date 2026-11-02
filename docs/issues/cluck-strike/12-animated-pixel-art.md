@@ -12,7 +12,7 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 
 **Blocked by:** 08.
 
-**Status:** in progress — option 1 (pixel sprites drawn in code) chosen; split into [12-animated-pixel-art/01–04](12-animated-pixel-art/).
+**Status:** done — option 1 (pixel sprites drawn in code) chosen; split into [12-animated-pixel-art/01–04](12-animated-pixel-art/), where the work is recorded.
 
 Originally this ticket was "art direction and AI image prompts" for still sprites. The user wants animation, and AI image generators don't keep one character consistent across frames, so the options are:
 
@@ -24,4 +24,6 @@ Once chosen, this ticket is split into slices (sprite engine and chicken; burn t
 
 - [x] Direction chosen: pixel sprites drawn in code
 - [x] Sliced into tickets
-- [ ] Time spent recorded at the bottom of this ticket
+- [x] Time spent recorded at the bottom of this ticket
+
+**Time spent:** ~42 min in total (01: ~20 min, 02: ~6 min, 03: ~7 min, 04: ~9 min), 2026-11-02 23:15 – 2026-11-03 00:06.

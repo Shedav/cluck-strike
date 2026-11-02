@@ -79,7 +79,7 @@ Recent Games keeps the player's last 100 finished Rounds and shows them 10 at a 
 - **Sound:** throw, Smoke, hop, Hit (fire burst, then crackling fat and the chicken's scream as it burns), Cash Out and Finish, synthesized in the browser with the Web Audio API (no audio files). Sound is on by default, toggled from the top bar, and the choice is persisted. No music.
 - **Hotkeys:** Space for Play/GO, Enter for Cash Out; ignored while typing or with a dialog open. Listed in the rules.
 - **Accessibility:** fully keyboard-operable with a visible focus outline; every Step, Hit, Cash Out, Finish and Max Win announced via one `aria-live` region; native `<dialog>` modals; `prefers-reduced-motion` respected.
-- **Art:** our own flat SVG sprites with a bold outline (chicken, roasted chicken, fire, Smoke, smoke grenade, golden case) in `public/sprites/` under fixed names, so they can be replaced without code changes.
+- **Art:** our own 8-bit pixel sprites drawn in code as text grids with one shared palette (`src/widgets/road/pixel/`), played frame by frame as sprite sheets: the chicken (idle, throw, hop), the burn down to a skeleton, the golden case opening, the Lane fire, Smoke and the smoke grenade. Multipliers and the win popup use the pixel font Pixelify Sans.
   - Under review (ticket 12): frame-by-frame 8-bit pixel animation in the style of cs2skin.com/crash — chicken idle, throw and hop; burning down to a skeleton; the golden case opening; pixel fire and Smoke; a pixel font for Multipliers. Whether the frames are drawn in code or AI-generated is not decided yet.
 - **i18n:** a small typed dictionary for `en` and `ru`. The default language is English; the player can switch to Russian and the choice is persisted.
 

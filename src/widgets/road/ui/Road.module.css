@@ -44,19 +44,19 @@
   grid-area: 1 / 1;
 }
 
-.fire {
-  width: 56px;
+.fire,
+.doused {
+  display: flex;
   opacity: 0.85;
   transform-origin: bottom center;
-  animation: flicker 0.9s ease-in-out infinite alternate;
 }
 
 .lane:nth-child(odd) .fire {
-  animation-delay: -0.45s;
+  animation-delay: -0.3s;
 }
 
 .smoke {
-  width: 110px;
+  display: flex;
   z-index: 2;
   pointer-events: none;
   /* cs2skin's violet glow on the Smoke, so a safe Step reads as the site's accent. */
@@ -64,7 +64,7 @@
 }
 
 .grenade {
-  width: 28px;
+  display: flex;
   z-index: 3;
   filter: drop-shadow(0 0 8px rgb(125 46 250 / 0.7));
 }
@@ -73,21 +73,13 @@
   filter: drop-shadow(0 0 16px rgb(248 166 5 / 0.45));
 }
 
-@keyframes flicker {
-  from {
-    transform: scale(0.92, 0.88);
-  }
-  to {
-    transform: scale(1.04, 1.08);
-  }
-}
-
 .lane + .lane {
   border-left: 2px dashed rgb(255 255 255 / 0.12);
 }
 
 .badge {
   display: grid;
+  font-family: var(--font-pixel);
   place-items: center;
   width: 72px;
   height: 72px;
@@ -165,6 +157,7 @@
 }
 
 .popup {
+  font-family: var(--font-pixel);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -210,8 +203,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .popup,
-  .fire {
+  .popup {
     animation: none;
   }
 }
