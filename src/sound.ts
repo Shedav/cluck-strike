@@ -112,6 +112,26 @@ const EFFECTS = {
     slide(ctx, 110, 40, 0.6, 0.4)
     hiss(ctx, { length: 0.9, volume: 0.35, filter: 'lowpass', from: 1400, to: 200 })
   },
+  /** The chicken roasted: a frying sizzle under a sad, falling squawk. */
+  roast(ctx: AudioContext) {
+    hiss(ctx, { length: 1.2, volume: 0.2, filter: 'highpass', from: 4000, to: 2500 })
+    const start = ctx.currentTime
+    const osc = ctx.createOscillator()
+    const voice = ctx.createBiquadFilter()
+    const gain = ctx.createGain()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(900, start)
+    osc.frequency.exponentialRampToValueAtTime(280, start + 0.55)
+    voice.type = 'bandpass'
+    voice.frequency.value = 1200
+    voice.Q.value = 4
+    gain.gain.setValueAtTime(0.0001, start)
+    gain.gain.exponentialRampToValueAtTime(0.25, start + 0.03)
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.6)
+    osc.connect(voice).connect(gain).connect(ctx.destination)
+    osc.start(start)
+    osc.stop(start + 0.62)
+  },
   /** Finish or Max Win: a quick rising arpeggio. */
   fanfare(ctx: AudioContext) {
     ;[1046.5, 1318.5, 1568, 2093].forEach((note, i) =>

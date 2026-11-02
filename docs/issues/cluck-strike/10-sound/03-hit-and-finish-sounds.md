@@ -19,4 +19,6 @@ Parent: [10 Sound](../10-sound.md)
 - Checked in headless Chrome by logging sound nodes on a Hit: throw, hop 450 ms later, fire burst another 450 ms later (`STEP_MS`), no Smoke.
 - Not checked live: Finish and Max Win are hard to reach by playing; they share the trigger with the Cash Out chime, which is checked.
 
+- Added on request: a "roasted" sound (frying sizzle under a falling squawk) when the roasted chicken appears, 350 ms after the fire burst (`ROAST_MS`, shared with the animation). The sound toggle now uses white line icons instead of emoji.
+
 **Time spent:** ~2 min (21:54–21:56, 2026-11-02).

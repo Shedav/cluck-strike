@@ -8,7 +8,16 @@ import { useT } from '../i18n'
 import { playSound } from '../sound'
 import { Coin } from './Coin'
 import styles from './Road.module.css'
-import { centreOf, HOP_MS, LANE_PX, RESULT_MS, SPRITES, STEP_MS, THROW_MS } from './timing'
+import {
+  centreOf,
+  HOP_MS,
+  LANE_PX,
+  RESULT_MS,
+  ROAST_MS,
+  SPRITES,
+  STEP_MS,
+  THROW_MS,
+} from './timing'
 
 export function Road() {
   const round = useGame((s) => s.round)
@@ -57,9 +66,11 @@ export function Road() {
       playSound('hop')
     }, THROW_MS)
     const burst = hitStep ? setTimeout(() => playSound('fire'), STEP_MS) : undefined
+    const roast = hitStep ? setTimeout(() => playSound('roast'), STEP_MS + ROAST_MS) : undefined
     return () => {
       clearTimeout(landing)
       clearTimeout(burst)
+      clearTimeout(roast)
     }
   }, [move, safeStep, hitStep])
 
@@ -174,7 +185,7 @@ function Chicken({ move, burning }: { move: Move; burning: boolean }) {
         x: hop,
         y: hop,
         opacity: burning
-          ? { delay: STEP_MS / 1000 + 0.35, duration: 0.2 }
+          ? { delay: (STEP_MS + ROAST_MS) / 1000, duration: 0.2 }
           : move.kind === 'reset'
             ? { ...FADE, delay: FADE.duration }
             : FADE,
@@ -191,7 +202,7 @@ function RoastedChicken() {
       alt={useT()('roastedChicken')}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: STEP_MS / 1000 + 0.35, duration: 0.2 }}
+      transition={{ delay: (STEP_MS + ROAST_MS) / 1000, duration: 0.2 }}
     />
   )
 }
