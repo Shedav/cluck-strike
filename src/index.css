@@ -72,12 +72,14 @@ input {
 .surface::before {
   content: '';
   position: absolute;
-  top: -1px;
+  /* Just inside the border: cards that clip or scroll their content would cut it off at -1px. */
+  top: 0;
   left: 0;
   width: 100%;
   height: 1px;
   background: var(--shine);
   pointer-events: none;
+  z-index: 3; /* above the card's own content, e.g. the road */
 }
 
 /* Secondary action: a dark grey pill like cs2skin's chips; only the primary button is violet. */
