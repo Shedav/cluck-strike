@@ -1,0 +1,18 @@
+/* The img shows one frame of the sheet (cover fills its height) and steps across to the last one. */
+.sprite {
+  object-fit: cover;
+  object-position: 0 0;
+  animation: play var(--ms) steps(var(--frames), jump-none) var(--iterations) both;
+}
+
+@keyframes play {
+  to {
+    object-position: 100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sprite {
+    animation: none;
+  }
+}

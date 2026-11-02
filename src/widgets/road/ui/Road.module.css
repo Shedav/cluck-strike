@@ -129,6 +129,11 @@
 }
 
 .chicken {
+  display: flex;
+  z-index: 1;
+}
+
+.roasted {
   width: 84px;
   z-index: 1;
 }

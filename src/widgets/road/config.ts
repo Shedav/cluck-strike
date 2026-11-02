@@ -7,7 +7,6 @@ export const centreOf = (cell: number) =>
   cell === 0 ? START_PX / 2 : START_PX + (cell - 1) * LANE_PX + LANE_PX / 2
 
 export const SPRITES = {
-  chicken: '/sprites/chicken.svg',
   chickenRoasted: '/sprites/chicken-roasted.svg',
   fire: '/sprites/fire.svg',
   smoke: '/sprites/smoke.svg',

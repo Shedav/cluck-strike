@@ -5,8 +5,9 @@ import { HOP_MS, LANDED_PAUSE_MS, RESULT_MS, ROAST_MS, STEP_MS, THROW_MS } from 
 import { maxWinLane, MULTIPLIERS } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
 import { formatCoins, formatMultiplier, playSound } from '@/shared/lib'
-import { Coin } from '@/shared/ui'
+import { Coin, PixelSprite } from '@/shared/ui'
 import { centreOf, LANE_PX, SPRITES } from '../config'
+import { CHICKEN } from '../pixel/chicken'
 import styles from './Road.module.css'
 
 export function Road() {
@@ -154,11 +155,20 @@ const FADE = { duration: 0.25 }
 function Chicken({ move, burning }: { move: Move; burning: boolean }) {
   const t = useT()
   const hop = { delay: THROW_MS / 1000, duration: HOP_MS / 1000, ease: 'easeOut' } as const
+  // On a Step the chicken throws, then hops, then idles; otherwise it just idles.
+  const [pose, setPose] = useState<keyof typeof CHICKEN>(move.kind === 'step' ? 'throw' : 'idle')
+  useEffect(() => {
+    if (move.kind !== 'step') return
+    const hopping = setTimeout(() => setPose('hop'), THROW_MS)
+    const idling = setTimeout(() => setPose('idle'), STEP_MS)
+    return () => {
+      clearTimeout(hopping)
+      clearTimeout(idling)
+    }
+  }, [move.kind])
   return (
-    <motion.img
+    <motion.div
       className={styles.chicken}
-      src={SPRITES.chicken}
-      alt={t('chicken')}
       custom={move}
       variants={{
         // The leaving chicken vanishes at once on a Step (the new one takes its place) and fades on
@@ -188,14 +198,25 @@ function Chicken({ move, burning }: { move: Move; burning: boolean }) {
             ? { ...FADE, delay: FADE.duration }
             : FADE,
       }}
-    />
+    >
+      <PixelSprite
+        key={pose}
+        frames={CHICKEN[pose]}
+        ms={POSE_MS[pose]}
+        loop={pose === 'idle'}
+        width={96}
+        alt={t('chicken')}
+      />
+    </motion.div>
   )
 }
+
+const POSE_MS = { idle: 900, throw: THROW_MS, hop: HOP_MS }
 
 function RoastedChicken() {
   return (
     <motion.img
-      className={styles.chicken}
+      className={styles.roasted}
       src={SPRITES.chickenRoasted}
       alt={useT()('roastedChicken')}
       initial={{ opacity: 0 }}
@@ -212,14 +233,20 @@ function Grenade({ miss }: { miss: boolean }) {
       className={styles.grenade}
       src={SPRITES.smokeGrenade}
       alt=""
-      initial={{ x: -LANE_PX, y: -40, rotate: 0, opacity: 1 }}
+      initial={{ x: -LANE_PX, y: -40, rotate: 0, opacity: 0 }}
       animate={{
         x: [-LANE_PX, miss ? LANE_PX * 0.2 : -LANE_PX / 2, miss ? LANE_PX * 1.1 : 0],
         y: [-40, -150, miss ? -20 : 0],
         rotate: [0, 270, 540],
-        opacity: [1, 1, 0],
+        // Hidden while the chicken's wind-up frame still holds the grenade (the first of three).
+        opacity: [0, 0, 1, 1, 0],
       }}
-      transition={{ duration: THROW_MS / 1000, ease: 'easeIn', times: [0, 0.5, 1] }}
+      transition={{
+        duration: THROW_MS / 1000,
+        ease: 'easeIn',
+        times: [0, 0.5, 1],
+        opacity: { duration: THROW_MS / 1000, times: [0, 0.33, 0.34, 0.5, 1] },
+      }}
     />
   )
 }
