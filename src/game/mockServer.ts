@@ -1,10 +1,10 @@
 import { randomSeed, sha256, verifyRound } from './fairness'
-import { laneCount, payoutCents, type Difficulty } from './odds'
+import { laneCount, MAX_WIN_CENTS, payoutCents, type Difficulty } from './odds'
 
 export type StepResult =
   | { outcome: 'safe'; lane: number }
   | { outcome: 'hit'; lane: number; serverSeed: string }
-  | { outcome: 'finish'; lane: number; payoutCents: number; serverSeed: string }
+  | { outcome: 'finish' | 'maxWin'; lane: number; payoutCents: number; serverSeed: string }
 
 export interface CashOutResult {
   lane: number
@@ -57,14 +57,13 @@ export function createMockServer({ newSeed = randomSeed } = {}): GameServer {
         round = null
         return { outcome: 'hit', lane, serverSeed: r.serverSeed }
       }
-      if (lane === laneCount(r.difficulty)) {
+      const payout = payoutCents(r.betCents, r.difficulty, lane)
+      // Max Win before Finish: the payout is capped either way, but the player should see why.
+      const end =
+        payout >= MAX_WIN_CENTS ? 'maxWin' : lane === laneCount(r.difficulty) ? 'finish' : null
+      if (end) {
         round = null
-        return {
-          outcome: 'finish',
-          lane,
-          payoutCents: payoutCents(r.betCents, r.difficulty, lane),
-          serverSeed: r.serverSeed,
-        }
+        return { outcome: end, lane, payoutCents: payout, serverSeed: r.serverSeed }
       }
       return { outcome: 'safe', lane }
     },

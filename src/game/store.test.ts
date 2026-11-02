@@ -1,15 +1,19 @@
 import { describe, expect, test } from 'vitest'
 import { verifyRound } from './fairness'
 import { createMockServer } from './mockServer'
+import type { Difficulty } from './odds'
 import { canCashOut, canPlay, cashOutCents, createGameStore } from './store'
 
 const CLIENT_SEED = 'test-client'
 
-/** Finds a Server Seed whose first Round (nonce 0) on Easy has the wanted Hit Lane. */
-async function seedWithHitLane(match: (hitLane: number | null) => boolean) {
+/** Finds a Server Seed whose first Round (nonce 0) has the wanted Hit Lane. */
+async function seedWithHitLane(
+  match: (hitLane: number | null) => boolean,
+  difficulty: Difficulty = 'easy',
+) {
   for (let i = 0; i < 10_000; i++) {
     const seed = `server-${i}`
-    if (match(await verifyRound(seed, CLIENT_SEED, 0, 'easy'))) return seed
+    if (match(await verifyRound(seed, CLIENT_SEED, 0, difficulty))) return seed
   }
   throw new Error('no seed found')
 }
@@ -92,5 +96,31 @@ describe('game store', () => {
     expect(await verifyRound(round.serverSeed!, round.clientSeed!, round.nonce!, 'easy')).toBe(
       round.lane,
     )
+  })
+
+  test('reaching Max Win ends the Round with an automatic Cash Out of exactly 10,000', async () => {
+    // Hardcore at 150: Lane 7 pays 9,444, Lane 8 would pay 21,036 and is capped.
+    const game = gameWith(await seedWithHitLane((lane) => lane === null || lane > 8, 'hardcore'))
+    game.getState().setDifficulty('hardcore')
+    game.getState().setBet(15_000)
+    await game.getState().play()
+    while (game.getState().round.phase === 'playing') await game.getState().go()
+    expect(game.getState().round).toMatchObject({
+      phase: 'maxWin',
+      lane: 8,
+      payoutCents: 1_000_000,
+    })
+    expect(game.getState().balanceCents).toBe(100_000 - 15_000 + 1_000_000)
+  })
+
+  test('Difficulty can change between Rounds but not during one', async () => {
+    const game = gameWith(await seedWithHitLane((lane) => lane === null || lane > 1))
+    game.getState().setDifficulty('hard')
+    expect(game.getState().round.difficulty).toBe('hard')
+    game.getState().setDifficulty('easy')
+    await game.getState().play()
+    game.getState().setDifficulty('hardcore')
+    game.getState().setBet(5)
+    expect(game.getState().round).toMatchObject({ difficulty: 'easy', betCents: 300 })
   })
 })

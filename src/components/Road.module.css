@@ -61,3 +61,32 @@
   font-size: 56px;
   line-height: 1;
 }
+
+.badge[data-full] {
+  position: relative;
+  cursor: help;
+}
+
+.badge[data-full]:hover::after,
+.badge[data-full]:focus-visible::after {
+  content: attr(data-full);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  translate: -50% 0;
+  padding: 4px 8px;
+  border-radius: var(--radius-chip);
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.badge[data-full]:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.beyondMaxWin .badge {
+  opacity: 0.35;
+}

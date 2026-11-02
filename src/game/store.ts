@@ -2,7 +2,7 @@ import { useStore } from 'zustand'
 import { createStore } from 'zustand/vanilla'
 import { randomSeed } from './fairness'
 import { createMockServer, type GameServer } from './mockServer'
-import { payoutCents } from './odds'
+import { payoutCents, type Difficulty } from './odds'
 import { cashedOut, idleRound, started, stepped, type Round } from './round'
 
 export interface GameState {
@@ -13,6 +13,7 @@ export interface GameState {
   /** A server call is in flight; further actions are ignored until it settles. */
   pending: boolean
   setBet(betCents: number): void
+  setDifficulty(difficulty: Difficulty): void
   play(): Promise<void>
   go(): Promise<void>
   cashOut(): Promise<void>
@@ -56,7 +57,7 @@ export function createGameStore({
       set((s) => ({
         round: stepped(s.round, result),
         balanceCents:
-          result.outcome === 'finish' ? s.balanceCents + result.payoutCents : s.balanceCents,
+          'payoutCents' in result ? s.balanceCents + result.payoutCents : s.balanceCents,
       }))
     }
 
@@ -69,6 +70,10 @@ export function createGameStore({
 
       setBet(betCents) {
         if (get().round.phase !== 'playing') set({ betCents })
+      },
+
+      setDifficulty(difficulty) {
+        if (get().round.phase !== 'playing') set({ round: idleRound(difficulty) })
       },
 
       play: () =>

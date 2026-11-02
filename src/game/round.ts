@@ -1,7 +1,7 @@
 import type { CashOutResult, StepResult } from './mockServer'
 import type { Difficulty } from './odds'
 
-export type Phase = 'idle' | 'playing' | 'hit' | 'cashedOut' | 'finished'
+export type Phase = 'idle' | 'playing' | 'hit' | 'cashedOut' | 'finished' | 'maxWin'
 
 /** The client's view of a Round. Each transition returns the Round unchanged when the phase doesn't allow it. */
 export interface Round {
@@ -52,9 +52,10 @@ export function stepped(round: Round, result: StepResult): Round {
     case 'hit':
       return { ...round, phase: 'hit', lane: result.lane, serverSeed: result.serverSeed }
     case 'finish':
+    case 'maxWin':
       return {
         ...round,
-        phase: 'finished',
+        phase: result.outcome === 'finish' ? 'finished' : 'maxWin',
         lane: result.lane,
         payoutCents: result.payoutCents,
         serverSeed: result.serverSeed,
