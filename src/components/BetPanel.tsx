@@ -110,11 +110,16 @@ export function BetPanel() {
       <div className={styles.actions}>
         {playing ? (
           <>
+            <button
+              key="cashOut"
+              className={styles.cashOut}
+              disabled={!canCashOut(game)}
+              onClick={game.cashOut}
+            >
+              Cash Out <Coin /> {formatCoins(cashOutCents(game))}
+            </button>
             <button className={styles.go} disabled={!canGo(game)} onClick={game.go}>
               GO
-            </button>
-            <button className={styles.cashOut} disabled={!canCashOut(game)} onClick={game.cashOut}>
-              Cash Out <Coin /> {formatCoins(cashOutCents(game))}
             </button>
           </>
         ) : canTopUp(game) ? (
@@ -155,20 +160,9 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 const maxWinCents = (betCents: number, difficulty: Difficulty) =>
   payoutCents(betCents, difficulty, laneCount(difficulty))
 
+/** Only a Hit is reported here; wins get the popup over the road. */
 function RoundStatus() {
   const round = useGame((s) => s.round)
-  switch (round.phase) {
-    case 'hit':
-      return <span className={styles.lost}>Hit on Lane {round.lane}. Bet lost.</span>
-    case 'cashedOut':
-      return <span className={styles.won}>Cashed out {formatCoins(round.payoutCents)}</span>
-    case 'maxWin':
-      return (
-        <span className={styles.won}>Max Win! Cashed out {formatCoins(round.payoutCents)}</span>
-      )
-    case 'finished':
-      return <span className={styles.won}>Finish! Won {formatCoins(round.payoutCents)}</span>
-    default:
-      return null
-  }
+  if (round.phase !== 'hit') return null
+  return <span className={styles.lost}>Hit on Lane {round.lane}. Bet lost.</span>
 }

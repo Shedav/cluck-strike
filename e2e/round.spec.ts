@@ -33,8 +33,11 @@ test('Play → GO → Cash Out increases the Balance', async ({ page }) => {
   await page.getByRole('button', { name: 'GO' }).click()
   await page.getByRole('button', { name: /Cash Out 10\.70/ }).click()
 
-  await expect(page.getByRole('status')).toHaveText('Cashed out 10.70')
+  const popup = page.getByTestId('win-popup')
+  await expect(popup).toContainText('1.07x')
+  await expect(popup).toContainText('10.70')
   await expect(page.getByTestId('balance')).toHaveText('1,000.70')
+  await expect(popup).toBeHidden({ timeout: 4000 })
 })
 
 test('a Hit on the first Step loses the Bet', async ({ page }) => {
@@ -42,7 +45,7 @@ test('a Hit on the first Step loses the Bet', async ({ page }) => {
   await placeBet(page, '10')
   await page.getByRole('button', { name: 'Play' }).click()
 
-  await expect(page.getByRole('status')).toHaveText('Hit on Lane 1. Bet lost.')
+  await expect(page.getByText('Hit on Lane 1. Bet lost.')).toBeVisible()
   await expect(page.getByTestId('balance')).toHaveText('990.00')
   await expect(page.getByRole('button', { name: 'Play' })).toBeEnabled()
 })

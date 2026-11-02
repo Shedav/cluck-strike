@@ -3,6 +3,10 @@ import type { Difficulty } from './odds'
 
 export type Phase = 'idle' | 'playing' | 'hit' | 'cashedOut' | 'finished' | 'maxWin'
 
+/** The Round ended with a payout: a Cash Out, the Finish or Max Win. */
+export const isWin = (phase: Phase): phase is 'cashedOut' | 'finished' | 'maxWin' =>
+  phase === 'cashedOut' || phase === 'finished' || phase === 'maxWin'
+
 /** The client's view of a Round. Each transition returns the Round unchanged when the phase doesn't allow it. */
 export interface Round {
   phase: Phase

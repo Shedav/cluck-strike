@@ -90,3 +90,59 @@
 .beyondMaxWin .badge {
   opacity: 0.35;
 }
+
+.scene {
+  position: relative;
+  min-width: 0; /* lets the road scroll instead of widening the page */
+}
+
+.popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 200px;
+  padding: 20px 32px;
+  border-radius: var(--radius-panel);
+  border: 1.5px solid var(--win);
+  background: rgb(6 11 21 / 0.92);
+  box-shadow: 0 0 40px rgb(21 215 124 / 0.25);
+  animation: pop 0.2s ease-out;
+}
+
+.popupTitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.popupMultiplier {
+  color: var(--win);
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.popupAmount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popup {
+    animation: none;
+  }
+}
