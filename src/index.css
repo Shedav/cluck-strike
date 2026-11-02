@@ -1,0 +1,53 @@
+/* Palette taken from cs2skin.com computed styles; the game is dark-only, like the site. */
+:root {
+  --bg: #060b15;
+  --bg-glow: rgb(125 46 250 / 0.18);
+  --panel-from: #121925;
+  --panel-to: #111820;
+  --surface: #0c111c;
+  --surface-raised: #222d3b;
+
+  --accent: #7d2efa;
+  --accent-light: #9658fb;
+  --accent-dark: #6325c8;
+  --win: #15d77c;
+  --hit: #ed4438;
+  --coin: #f8a605;
+
+  --text: #ffffff;
+  --text-body: #ededed;
+  --text-muted: #9dabbd;
+  --text-subtle: #7f8d9f;
+  --text-disabled: #49525d;
+
+  --radius-panel: 12px;
+  --radius-chip: 5px;
+  --radius-pill: 20px;
+  --transition: 0.18s ease-out;
+
+  --font: 'Chakra Petch', system-ui, sans-serif;
+
+  color-scheme: dark;
+  font-family: var(--font);
+  color: var(--text-body);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, var(--bg-glow), transparent 70%), var(--bg);
+}
+
+button,
+input {
+  font: inherit;
+}
