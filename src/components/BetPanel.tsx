@@ -14,6 +14,7 @@ import {
   type BetError,
 } from '../game/store'
 import { Coin } from './Coin'
+import { STEP_MS } from './timing'
 import styles from './BetPanel.module.css'
 
 export function BetPanel() {
@@ -21,6 +22,18 @@ export function BetPanel() {
   const [betText, setBetText] = useState(() => (game.betCents / 100).toFixed(2))
   const playing = game.round.phase === 'playing'
   const error = playing ? null : betError(game)
+  const [animating, setAnimating] = useState(false)
+
+  /** Runs a Step action and keeps the buttons locked until its animation has played. */
+  async function animated(action: () => Promise<void>) {
+    setAnimating(true)
+    try {
+      await action()
+      await new Promise((resolve) => setTimeout(resolve, STEP_MS))
+    } finally {
+      setAnimating(false)
+    }
+  }
 
   function choose(cents: number) {
     setBetText((cents / 100).toFixed(2))
@@ -113,12 +126,16 @@ export function BetPanel() {
             <button
               key="cashOut"
               className={styles.cashOut}
-              disabled={!canCashOut(game)}
+              disabled={animating || !canCashOut(game)}
               onClick={game.cashOut}
             >
               Cash Out <Coin /> {formatCoins(cashOutCents(game))}
             </button>
-            <button className={styles.go} disabled={!canGo(game)} onClick={game.go}>
+            <button
+              className={styles.go}
+              disabled={animating || !canGo(game)}
+              onClick={() => animated(game.go)}
+            >
               GO
             </button>
           </>
@@ -127,7 +144,11 @@ export function BetPanel() {
             Top up demo balance
           </button>
         ) : (
-          <button className={styles.go} disabled={!canPlay(game)} onClick={game.play}>
+          <button
+            className={styles.go}
+            disabled={animating || !canPlay(game)}
+            onClick={() => animated(game.play)}
+          >
             Play
           </button>
         )}

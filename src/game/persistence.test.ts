@@ -76,3 +76,15 @@ test('a saved Round the server no longer knows is dropped', async () => {
   const after = await load(storage)
   expect(after.getState().round.phase).toBe('idle')
 })
+
+test('a reload after a finished Round starts from the start line, not the old result', async () => {
+  const storage = memoryStorage()
+  const before = await load(storage, await seedWithHitLane((lane) => lane === null || lane > 2))
+  await before.getState().play()
+  await before.getState().cashOut()
+  expect(before.getState().round.phase).toBe('cashedOut')
+
+  const after = await load(storage)
+  expect(after.getState().round).toMatchObject({ phase: 'idle', lane: 0, difficulty: 'easy' })
+  expect(after.getState().balanceCents).toBe(before.getState().balanceCents)
+})

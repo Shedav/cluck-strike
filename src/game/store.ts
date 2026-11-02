@@ -200,7 +200,8 @@ export function createGameStore({
           balanceCents,
           betCents: Number.isInteger(betCents) ? betCents : 300,
           clientSeed,
-          round,
+          // A finished Round's result was already shown; a reload starts from the start line.
+          round: round.phase === 'playing' ? round : idleRound(round.difficulty),
         }),
         merge: (saved, current) => ({ ...current, ...validSaved(saved) }),
       },
