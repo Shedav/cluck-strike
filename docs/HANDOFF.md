@@ -35,7 +35,7 @@ Where things are:
 
 Checklist is in the ticket. Notes for writing it:
 
-- Time log: collect the `Time spent` lines from tickets 01–12 (system-clock timestamps; design/spec phase ≈ 4 h wall-clock 11:38–15:25 on 2026-11-02, recorded in ticket 01). Ask the user to confirm the totals — the clock-based numbers look short.
+- Time log: use `docs/TIMELINE.md` (active time by section from the transcript, away time excluded, ≈ 4 h 20 min for this session) and add the time of the ticket 12/13 session.
 - Decisions to explain (link ADRs/spec rather than repeat): predetermined outcome + client-side provably fair (ADR 0001), FSD + boundary test (ADR 0002), Multiplier tables from the genre's reference game with RTP 98% and Max Win 10,000, mock server behind a backend-shaped contract, synthesized Web Audio sounds, original theme (CS chicken, molotov fire, smoke grenade) instead of copying Chicken Road.
 - Known limits: DevTools can read the Hit Lane (no backend), mock funds, placeholder art until ticket 12, synthetic sounds.
 - Manual pass on the deployed build (desktop + phone) per the ticket; `BASE_URL=https://cluck-strike.vercel.app pnpm test:e2e` runs the e2e suite against the live site.

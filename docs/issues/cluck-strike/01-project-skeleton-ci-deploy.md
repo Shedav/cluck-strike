@@ -22,4 +22,4 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 
 **Notes:** Playwright's bundled Chromium does not install on macOS 13, so local runs use the installed Google Chrome; CI uses bundled Chromium.
 
-**Time spent:** ~15 min (15:25–15:40, 2026-11-02). Design, research, spec and ticket breakdown before this ticket: ~4 h wall-clock (11:38–15:25).
+**Time spent:** ~15 min (15:25–15:40, 2026-11-02). Design, research, spec and ticket breakdown before this ticket: ≈ 1 h active (wall-clock 11:38–15:25 includes time away; see [docs/TIMELINE.md](../../TIMELINE.md)).
