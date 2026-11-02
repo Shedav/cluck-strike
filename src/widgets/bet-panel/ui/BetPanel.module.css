@@ -1,7 +1,8 @@
+/* Columns align to the top: labels share one line and controls the next (labels are 18px + 6px gap). */
 .panel {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 16px;
   padding: 16px;
   /* cs2skin's game side panel (Mines): a plain grey gradient, no border. */
@@ -16,6 +17,7 @@
 
 .label {
   font-size: 13px;
+  line-height: 18px;
   font-weight: 500;
   color: var(--text-muted);
 }
@@ -51,6 +53,7 @@
   display: flex;
   gap: 8px;
   margin-left: auto;
+  padding-top: 24px; /* no label above the buttons: line them up with the controls */
 }
 
 .go,
@@ -121,6 +124,7 @@
 
 .difficulty .label {
   padding: 0;
+  margin-bottom: 6px; /* a legend is not a grid item, so the fieldset's gap skips it */
 }
 
 .tabs {
@@ -276,6 +280,7 @@
 
   .actions {
     margin-left: 0;
+    padding-top: 0;
   }
 
   .go,
