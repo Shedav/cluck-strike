@@ -1,5 +1,13 @@
 import { expect, test } from 'vitest'
-import { hmacSha256, randomSeed, roundNumber, sha256, verifyRound } from './fairness'
+import {
+  hmacSha256,
+  randomSeed,
+  roundNumber,
+  sha256,
+  verifierSnippet,
+  verifyRound,
+} from './fairness'
+import { DIFFICULTIES } from './odds'
 
 test('HMAC-SHA256 matches RFC 4231 test case 2', async () => {
   expect(await hmacSha256('Jefe', 'what do ya want for nothing?')).toBe(
@@ -33,4 +41,25 @@ test('random seeds are 32 bytes of hex and differ', () => {
   const seed = randomSeed()
   expect(seed).toMatch(/^[0-9a-f]{64}$/)
   expect(randomSeed()).not.toBe(seed)
+})
+
+test('the console snippet recomputes the same Hit Lane as verifyRound', async () => {
+  const AsyncFunction = (async () => {}).constructor as new (
+    ...args: string[]
+  ) => (console: Pick<Console, 'log'>) => Promise<void>
+  for (const difficulty of DIFFICULTIES) {
+    for (let nonce = 0; nonce < 20; nonce++) {
+      const serverSeed = randomSeed()
+      const clientSeed = `it's "quoted" ${nonce}`
+      let printed = ''
+      await new AsyncFunction(
+        'console',
+        verifierSnippet(serverSeed, clientSeed, nonce, difficulty),
+      )({
+        log: (line: string) => void (printed = line),
+      })
+      const lane = await verifyRound(serverSeed, clientSeed, nonce, difficulty)
+      expect(printed).toBe(lane ? `Hit on Lane ${lane}` : 'No Hit: the chicken reaches the Finish')
+    }
+  }
 })

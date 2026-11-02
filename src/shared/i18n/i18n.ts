@@ -75,6 +75,10 @@ const en = {
   copy: 'Copy',
   copied: 'Copied',
   copyLabel: 'Copy {label}',
+  verifyARound: 'Verify a Round',
+  verifyHint:
+    "Enter any Round's values to recompute its result here, or copy the code and run it in any browser console (F12) without trusting this page.",
+  consoleCode: 'Code for the browser console',
 
   rulesHowTo: 'How to play',
   rulesStep1:
@@ -174,6 +178,10 @@ const ru: Record<MessageKey, string> = {
   copy: 'Копировать',
   copied: 'Скопировано',
   copyLabel: 'Копировать: {label}',
+  verifyARound: 'Проверить раунд',
+  verifyHint:
+    'Введите значения любого раунда, чтобы пересчитать результат здесь, или скопируйте код и запустите его в консоли любого браузера (F12), не доверяя этой странице.',
+  consoleCode: 'Код для консоли браузера',
 
   rulesHowTo: 'Как играть',
   rulesStep1:

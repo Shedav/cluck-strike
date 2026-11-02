@@ -31,6 +31,7 @@
 .row {
   display: flex;
   gap: 6px;
+  min-width: 0; /* long code scrolls inside instead of widening the modal */
 }
 
 .value,
@@ -99,4 +100,24 @@
 
 .verdict[data-ok='true'] strong {
   color: var(--win);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.result {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Multi-line code keeps its lines and scrolls sideways instead of wrapping. */
+.code {
+  white-space: pre;
+  overflow: auto;
+  max-height: 180px;
+  overflow-wrap: normal;
 }

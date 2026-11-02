@@ -1,4 +1,4 @@
-import { hitLaneFor, type Difficulty } from './odds'
+import { hitLaneFor, MULTIPLIERS, RTP, type Difficulty } from './odds'
 
 const encoder = new TextEncoder()
 
@@ -38,4 +38,31 @@ export async function verifyRound(
   difficulty: Difficulty,
 ): Promise<number | null> {
   return hitLaneFor(difficulty, await roundNumber(serverSeed, clientSeed, nonce))
+}
+
+/**
+ * The same check as `verifyRound`, as JavaScript that runs on its own in any browser console, so
+ * a player can recompute a Round without trusting this page's code.
+ */
+export function verifierSnippet(
+  serverSeed: string,
+  clientSeed: string,
+  nonce: number,
+  difficulty: Difficulty,
+): string {
+  return `// Cluck Strike: recompute a Round's Hit Lane. Paste into any browser console (F12).
+const serverSeed = ${JSON.stringify(serverSeed)}
+const clientSeed = ${JSON.stringify(clientSeed)}
+const nonce = ${nonce}
+// ${difficulty} Lane Multipliers; surviving up to a Lane has the chance ${RTP} / its Multiplier.
+const multipliers = [${MULTIPLIERS[difficulty].join(', ')}]
+
+const enc = new TextEncoder()
+const key = await crypto.subtle.importKey('raw', enc.encode(serverSeed), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+const hmac = new Uint8Array(await crypto.subtle.sign('HMAC', key, enc.encode(\`\${clientSeed}:\${nonce}\`)))
+const hex = Array.from(hmac, (b) => b.toString(16).padStart(2, '0')).join('')
+// A uniform number in [0, 1) from the first 52 bits of the HMAC.
+const u = parseInt(hex.slice(0, 13), 16) / 2 ** 52
+const lane = multipliers.findIndex((m) => u >= ${RTP} / m) + 1
+console.log(lane ? \`Hit on Lane \${lane}\` : 'No Hit: the chicken reaches the Finish')`
 }

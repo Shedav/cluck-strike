@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { isWin, useGame, type Round } from '@/entities/round'
-import { sha256, verifyRound } from '@/shared/game-rules'
+import {
+  DIFFICULTIES,
+  sha256,
+  verifierSnippet,
+  verifyRound,
+  type Difficulty,
+} from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
 import { Dialog } from '@/shared/ui'
 import styles from './Fairness.module.css'
@@ -88,7 +94,97 @@ function FairnessContent() {
           <RoundProof round={round} />
         </section>
       )}
+
+      <VerifyForm />
     </>
+  )
+}
+
+/** Recomputes any Round from values the player enters, and gives the same check as console code. */
+function VerifyForm() {
+  // Starts from the last Round whose Server Seed is revealed, if any.
+  const last = useGame((s) => (s.round.serverSeed !== null ? s.round : s.recentGames[0]))
+  const [form, setForm] = useState(() => ({
+    serverSeed: last?.serverSeed ?? '',
+    clientSeed: last?.clientSeed ?? '',
+    nonce: String(last?.nonce ?? 0),
+    difficulty: last?.difficulty ?? ('easy' as Difficulty),
+  }))
+  const [check, setCheck] = useState<{ hash: string; hitLane: number | null } | null>(null)
+  const t = useT()
+  const nonce = Number(form.nonce)
+  const valid =
+    form.serverSeed !== '' && form.nonce.trim() !== '' && Number.isSafeInteger(nonce) && nonce >= 0
+
+  useEffect(() => {
+    if (!valid) return
+    let live = true
+    void Promise.all([
+      sha256(form.serverSeed),
+      verifyRound(form.serverSeed, form.clientSeed, nonce, form.difficulty),
+    ]).then(([hash, hitLane]) => live && setCheck({ hash, hitLane }))
+    return () => {
+      live = false
+    }
+  }, [valid, form.serverSeed, form.clientSeed, nonce, form.difficulty])
+
+  const input = (name: 'serverSeed' | 'clientSeed' | 'nonce', label: string) => (
+    <div className={styles.field}>
+      <label className={styles.label} htmlFor={`verify-${name}`}>
+        {label}
+      </label>
+      <input
+        id={`verify-${name}`}
+        className={styles.input}
+        inputMode={name === 'nonce' ? 'numeric' : undefined}
+        value={form[name]}
+        onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+      />
+    </div>
+  )
+
+  return (
+    <section className={styles.section}>
+      <h3 className={styles.heading}>{t('verifyARound')}</h3>
+      <p className={styles.hint}>{t('verifyHint')}</p>
+      {input('serverSeed', t('serverSeed'))}
+      {input('clientSeed', t('clientSeed'))}
+      <div className={styles.pair}>
+        {input('nonce', t('nonce'))}
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="verify-difficulty">
+            {t('difficulty')}
+          </label>
+          <select
+            id="verify-difficulty"
+            className={styles.input}
+            value={form.difficulty}
+            onChange={(e) => setForm({ ...form, difficulty: e.target.value as Difficulty })}
+          >
+            {DIFFICULTIES.map((d) => (
+              <option key={d} value={d}>
+                {t(d)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      {valid && check && (
+        <>
+          <Field label={t('serverSeedHashSha')} value={check.hash} />
+          <p className={styles.result} data-testid="verify-result">
+            {t('recomputed', {
+              result: check.hitLane === null ? t('noHit') : t('hitOnLane', { lane: check.hitLane }),
+            })}
+          </p>
+          <Field
+            label={t('consoleCode')}
+            value={verifierSnippet(form.serverSeed, form.clientSeed, nonce, form.difficulty)}
+            code
+          />
+        </>
+      )}
+    </section>
   )
 }
 
@@ -155,14 +251,14 @@ function describe(round: Round, t: ReturnType<typeof useT>) {
   }
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value, code = false }: { label: string; value: string; code?: boolean }) {
   const [copied, setCopied] = useState(false)
   const t = useT()
   return (
     <div className={styles.field}>
       <span className={styles.label}>{label}</span>
       <div className={styles.row}>
-        <code className={styles.value}>{value}</code>
+        <code className={`${styles.value} ${code ? styles.code : ''}`}>{value}</code>
         <button
           className={`${styles.copy} secondary`}
           aria-label={t('copyLabel', { label })}
