@@ -10,5 +10,4 @@ export const SPRITES = {
   fire: '/sprites/fire.svg',
   smoke: '/sprites/smoke.svg',
   smokeGrenade: '/sprites/smoke-grenade.svg',
-  goldenCase: '/sprites/golden-case.svg',
 } as const

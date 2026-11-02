@@ -16,6 +16,7 @@ export const PALETTE: Record<string, string> = {
   b: '#e7e5e4', // bone
   h: '#4a3226', // charred feathers
   c: '#2b1d16', // charred shade
+  u: '#a16207', // gold shade
 }
 
 /** Draws `top` over `base`; the '.' pixels of `top` let `base` show through. */

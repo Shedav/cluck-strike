@@ -8,6 +8,7 @@ import { formatCoins, formatMultiplier, playSound } from '@/shared/lib'
 import { Coin, PixelSprite } from '@/shared/ui'
 import { centreOf, LANE_PX, SPRITES } from '../config'
 import { BURN } from '../pixel/burn'
+import { GOLDEN_CASE } from '../pixel/case'
 import { CHICKEN } from '../pixel/chicken'
 import styles from './Road.module.css'
 
@@ -22,8 +23,14 @@ export function Road() {
   // The burn plays after the throw and the hop, so the Hit result stays up a bit longer.
   const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS)
   // A Finish or Max Win comes from a Step: let the chicken land on the Lane first, then celebrate.
+  // On a Finish the golden case opens as it lands, and the celebration waits until it is open.
   const stepWin = round.phase === 'finished' || round.phase === 'maxWin'
-  const landed = useAfterDelay(stepWin, round.nonce, STEP_MS + LANDED_PAUSE_MS)
+  const caseOpening = useAfterDelay(round.phase === 'finished', round.nonce, STEP_MS)
+  const landed = useAfterDelay(
+    stepWin,
+    round.nonce,
+    STEP_MS + (round.phase === 'finished' ? CASE_MS : LANDED_PAUSE_MS),
+  )
   const celebrate = round.phase === 'cashedOut' || landed
   // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
   // fire stays on the Lane for a moment first.
@@ -126,14 +133,13 @@ export function Road() {
             )
           })}
           <div className={styles.finish}>
-            <motion.img
+            <PixelSprite
+              key={caseOpening ? 'open' : 'closed'}
               className={styles.case}
-              src={SPRITES.goldenCase}
+              frames={caseOpening ? GOLDEN_CASE.open : GOLDEN_CASE.closed}
+              ms={CASE_MS}
+              width={96}
               alt={t('goldenCase')}
-              animate={
-                round.phase === 'finished' ? { scale: [1, 1.3, 1.15], rotate: [0, -8, 8, 0] } : {}
-              }
-              transition={{ duration: 0.6, delay: STEP_MS / 1000 }}
             />
           </div>
         </motion.div>
@@ -232,6 +238,9 @@ function Burn() {
     />
   )
 }
+
+/** The golden case shaking, bursting open and settling, before the Finish is celebrated. */
+const CASE_MS = 1100
 
 /** The whole burn; with `STEP_MS` it ends before `RESULT_MS` resets the scene. */
 const BURN_MS = 1500
