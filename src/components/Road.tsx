@@ -1,5 +1,5 @@
-import { motion, MotionConfig } from 'motion/react'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { motion, MotionConfig, useAnimate, useReducedMotion } from 'motion/react'
+import { Fragment, useEffect, useRef, useState, type RefObject } from 'react'
 import { formatCoins, formatMultiplier } from '../format'
 import { maxWinLane, MULTIPLIERS } from '../game/odds'
 import { isWin } from '../game/round'
@@ -13,7 +13,8 @@ export function Road() {
   // Before a Round the dimming follows the Bet being typed; during and after, the Round's own Bet.
   const betCents = useGame((s) => (s.round.phase === 'idle' ? s.betCents : s.round.betCents))
   const capLane = maxWinLane(betCents, round.difficulty)
-  const current = useRef<HTMLDivElement>(null)
+  // Index 0 is the start column, 1..n the Lanes; the chicken layer aims at their centres.
+  const cells = useRef<(HTMLDivElement | null)[]>([])
   // The burn plays after the throw and the hop, so the Hit result stays up a bit longer.
   const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS)
   // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
@@ -22,21 +23,18 @@ export function Road() {
   const hitNow = round.phase === 'hit' && !burnt
 
   useEffect(() => {
-    current.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    cells.current[lane]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
   }, [lane])
 
   return (
     <MotionConfig reducedMotion="user">
       <div className={styles.scene}>
         <motion.div
-          layoutScroll
           className={styles.road}
           animate={hitNow ? { x: [0, -8, 8, -6, 6, 0] } : { x: 0 }}
           transition={{ duration: 0.4, delay: STEP_MS / 1000 }}
         >
-          <div className={styles.start} ref={lane === 0 ? current : undefined}>
-            {lane === 0 && <Chicken burning={false} hopKey={`start-${round.nonce}`} />}
-          </div>
+          <div className={styles.start} ref={(el) => void (cells.current[0] = el)} />
           {MULTIPLIERS[round.difficulty].map((multiplier, i) => {
             const n = i + 1
             const state = n === lane && hitNow ? 'hit' : n <= lane ? 'passed' : 'ahead'
@@ -44,7 +42,7 @@ export function Road() {
               <div
                 key={n}
                 className={`${styles.lane} ${styles[state]} ${capLane && n > capLane ? styles.beyondMaxWin : ''}`}
-                ref={n === lane ? current : undefined}
+                ref={(el) => void (cells.current[n] = el)}
               >
                 <Badge multiplier={multiplier} />
                 <div className={styles.ground}>
@@ -63,13 +61,11 @@ export function Road() {
                       <RoastedChicken />
                     </>
                   )}
-                  {n === lane && (
-                    <Chicken burning={state === 'hit'} hopKey={`${round.nonce}-${n}`} />
-                  )}
                 </div>
               </div>
             )
           })}
+          <Chicken cells={cells} lane={lane} burning={hitNow} />
           <div className={styles.finish}>
             <motion.img
               className={styles.case}
@@ -88,28 +84,72 @@ export function Road() {
   )
 }
 
+const CHICKEN_PX = 84
+
 /**
- * The chicken waits for its grenade to land, then hops into the new spot; `layoutId` slides it
- * across from the previous one. A burning chicken fades out as the roasted one appears.
+ * The chicken lives in its own layer over the road and moves by `x` to the centre of its cell:
+ * after its grenade lands it hops one Lane on; when a Round ends it flies back to the start.
+ * A burning chicken fades out as the roasted one appears in the Lane.
  */
-function Chicken({ burning, hopKey }: { burning: boolean; hopKey: string }) {
-  const hop = { delay: THROW_MS / 1000, duration: HOP_MS / 1000, ease: 'easeOut' } as const
-  return (
-    <motion.img
-      key={hopKey}
-      layoutId="chicken"
-      className={styles.chicken}
-      src={SPRITES.chicken}
-      alt="Chicken"
-      initial={{ y: 0, opacity: 1 }}
-      animate={{ y: [0, -44, 0], opacity: burning ? 0 : 1 }}
-      transition={{
-        y: hop,
-        layout: hop,
-        opacity: { delay: STEP_MS / 1000 + 0.35, duration: 0.2 },
-      }}
-    />
-  )
+function Chicken({
+  cells,
+  lane,
+  burning,
+}: {
+  cells: RefObject<(HTMLDivElement | null)[]>
+  lane: number
+  burning: boolean
+}) {
+  const [scope, animate] = useAnimate<HTMLImageElement>()
+  const reduced = useReducedMotion()
+  const shownLane = useRef<number | null>(null)
+
+  useEffect(() => {
+    const cell = cells.current[lane]
+    if (!cell || !scope.current) return
+    const x = cell.offsetLeft + cell.offsetWidth / 2 - CHICKEN_PX / 2
+    const from = shownLane.current
+    shownLane.current = lane
+    if (from === null || reduced) {
+      void animate(scope.current, { x, y: 0 }, { duration: 0 })
+    } else if (lane > from) {
+      const hop = { delay: THROW_MS / 1000, duration: HOP_MS / 1000, ease: 'easeOut' } as const
+      void animate(scope.current, { x }, hop)
+      void animate(scope.current, { y: [0, -44, 0] }, hop)
+    } else if (lane < from) {
+      // Back to the start: one long arc, a bit longer the further it has to fly.
+      const fly = { duration: 0.5 + 0.05 * (from - lane), ease: 'easeInOut' } as const
+      void animate(scope.current, { x }, fly)
+      void animate(scope.current, { y: [0, -90, 0] }, fly)
+    }
+  }, [lane, cells, scope, animate, reduced])
+
+  // Cell widths change with the viewport; snap back to the cell centre without animating.
+  useEffect(() => {
+    const onResize = () => {
+      const cell = cells.current[shownLane.current ?? 0]
+      if (cell && scope.current) {
+        void animate(
+          scope.current,
+          { x: cell.offsetLeft + cell.offsetWidth / 2 - CHICKEN_PX / 2 },
+          { duration: 0 },
+        )
+      }
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [cells, scope, animate])
+
+  useEffect(() => {
+    if (!scope.current) return
+    void animate(
+      scope.current,
+      { opacity: burning ? 0 : 1 },
+      burning ? { delay: STEP_MS / 1000 + 0.35, duration: 0.2 } : { duration: 0.2 },
+    )
+  }, [burning, scope, animate])
+
+  return <img ref={scope} className={styles.chickenLayer} src={SPRITES.chicken} alt="Chicken" />
 }
 
 function RoastedChicken() {
