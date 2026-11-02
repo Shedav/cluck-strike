@@ -24,5 +24,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Runs in Node (reads the source tree), so it is type-checked with tsconfig.node.json.
+  "exclude": ["src/app/architecture.test.ts"]
 }

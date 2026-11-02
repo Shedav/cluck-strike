@@ -90,6 +90,7 @@ Backend, accounts, other players' bets, live-wins ticker, online counter, music,
 ## Tech
 
 - Vite, React, TypeScript (strict), and pnpm.
+- Feature-Sliced Design (`app → pages → widgets → features → entities → shared`) with slice public APIs and an import-boundary test; see [ADR 0002](adr/0002-feature-sliced-design.md).
 - Zustand with `persist`. Round transitions are pure functions kept outside the store.
 - CSS Modules with CSS variables for the palette, Framer Motion, and Web Crypto (no crypto dependency).
 - Tests: Vitest through the game store's public API (main seam), plus direct unit tests of the odds math, fairness and Round transitions. Playwright smoke tests cover bet → step → cash out and a forced Hit.
