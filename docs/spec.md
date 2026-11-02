@@ -89,6 +89,6 @@ Backend, accounts, other players' bets, live-wins ticker, online counter, music,
 - Zustand with `persist`. Round transitions are pure functions kept outside the store.
 - CSS Modules with CSS variables for the palette, Framer Motion, and Web Crypto (no crypto dependency).
 - Tests: Vitest through the game store's public API (main seam), plus direct unit tests of the odds math, fairness and Round transitions. Playwright smoke tests cover bet → step → cash out and a forced Hit.
-- ESLint and Prettier. GitHub Actions runs lint → test → build.
+- oxlint and Prettier. GitHub Actions runs lint → format check → test → build → smoke.
 - Conventional Commits and the MIT license. The GitHub repository is public and deployed to Vercel.
 - The README (English) covers how to run the game, a time log by stage, the decisions with links to the ADRs, and known limits (the fairness proof is client-side only).
