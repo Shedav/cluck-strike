@@ -107,6 +107,17 @@ const EFFECTS = {
     slide(ctx, 160, 60, 0.18, 0.35)
     hiss(ctx, { length: 0.8, volume: 0.18, filter: 'highpass', from: 3000, to: 1200 })
   },
+  /** A Hit: the fire bursts up with a low rumble. */
+  fire(ctx: AudioContext) {
+    slide(ctx, 110, 40, 0.6, 0.4)
+    hiss(ctx, { length: 0.9, volume: 0.35, filter: 'lowpass', from: 1400, to: 200 })
+  },
+  /** Finish or Max Win: a quick rising arpeggio. */
+  fanfare(ctx: AudioContext) {
+    ;[1046.5, 1318.5, 1568, 2093].forEach((note, i) =>
+      tone(ctx, note, i * 0.09, i === 3 ? 0.6 : 0.2, 0.16),
+    ) // C6 E6 G6 C7
+  },
   /** The chicken's hop: a short rising boing. */
   hop(ctx: AudioContext) {
     slide(ctx, 320, 640, 0.12, 0.12)

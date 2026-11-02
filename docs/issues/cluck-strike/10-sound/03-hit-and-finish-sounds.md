@@ -6,9 +6,17 @@ Parent: [10 Sound](../10-sound.md)
 
 **Blocked by:** 01.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] On a Hit: throw whoosh, then a fire burst timed to the flare-up (after the hop), no Smoke sound
-- [ ] Finish and Max Win play a short fanfare
-- [ ] All synthesized with Web Audio; silent when sound is off
-- [ ] Time spent recorded at the bottom of this ticket
+- [x] On a Hit: throw whoosh, then a fire burst timed to the flare-up (after the hop), no Smoke sound
+- [x] Finish and Max Win play a short fanfare
+- [x] All synthesized with Web Audio; silent when sound is off
+- [x] Time spent recorded at the bottom of this ticket
+
+**Notes:**
+
+- The fire burst is a low rumble plus a falling low-pass noise burst; the fanfare is a C-E-G-C arpeggio.
+- Checked in headless Chrome by logging sound nodes on a Hit: throw, hop 450 ms later, fire burst another 450 ms later (`STEP_MS`), no Smoke.
+- Not checked live: Finish and Max Win are hard to reach by playing; they share the trigger with the Cash Out chime, which is checked.
+
+**Time spent:** ~2 min (21:54–21:56, 2026-11-02).

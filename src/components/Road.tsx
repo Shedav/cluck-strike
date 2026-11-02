@@ -42,10 +42,13 @@ export function Road() {
   // A reload never restores a finished Round, so this fires only for a Cash Out just made.
   useEffect(() => {
     if (round.phase === 'cashedOut') playSound('cashOut')
+    if (round.phase === 'finished' || round.phase === 'maxWin') playSound('fanfare')
   }, [round.phase, round.nonce])
 
-  // Step sounds follow the animation: the throw now, the landing when the grenade comes down.
+  // Step sounds follow the animation: the throw now, the landing when the grenade comes down, and
+  // on a Hit the fire burst when the chicken lands in the flames.
   const safeStep = move.kind === 'step' && round.phase === 'playing'
+  const hitStep = move.kind === 'step' && round.phase === 'hit'
   useEffect(() => {
     if (move.kind !== 'step') return
     playSound('throw')
@@ -53,8 +56,12 @@ export function Road() {
       if (safeStep) playSound('smoke')
       playSound('hop')
     }, THROW_MS)
-    return () => clearTimeout(landing)
-  }, [move, safeStep])
+    const burst = hitStep ? setTimeout(() => playSound('fire'), STEP_MS) : undefined
+    return () => {
+      clearTimeout(landing)
+      clearTimeout(burst)
+    }
+  }, [move, safeStep, hitStep])
 
   useEffect(() => {
     cells.current[lane]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
