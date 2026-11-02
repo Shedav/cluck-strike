@@ -73,7 +73,7 @@ Recent Games keeps the player's last 100 finished Rounds and shows them 10 at a 
   - **Below the game:** Recent Games.
   - **Mobile:** the bottom panel stacks vertically and Difficulty becomes a dropdown.
 - **Animation:** DOM + Framer Motion. A Step is a hop, then Smoke or a flare-up. Buttons are locked while an animation plays, which also prevents double clicks.
-- **Sound:** throw, Smoke, hop, Hit (fire burst, then crackling, a thud and a CS-style radio "round lost" alert as the chicken roasts), Cash Out and Finish, synthesized in the browser with the Web Audio API (no audio files). Sound is on by default, toggled from the top bar, and the choice is persisted. No music.
+- **Sound:** throw, Smoke, hop, Hit (fire burst, then crackling, a low whoomp of flame and a dying char sizzle as the chicken burns), Cash Out and Finish, synthesized in the browser with the Web Audio API (no audio files). Sound is on by default, toggled from the top bar, and the choice is persisted. No music.
 - **Hotkeys:** Space for Play/GO, Enter for Cash Out.
 - **Accessibility:** fully keyboard-operable, Step results announced via `aria-live`, and `prefers-reduced-motion` respected.
 - **Art:** cartoon flat 2D with a bold outline.

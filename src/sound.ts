@@ -119,7 +119,7 @@ const EFFECTS = {
     slide(ctx, 110, 40, 0.6, 0.4)
     hiss(ctx, { length: 0.9, volume: 0.35, filter: 'lowpass', from: 1400, to: 200 })
   },
-  /** The chicken roasted: crackling fat, a thud and a radio-style round-lost alert. */
+  /** The chicken burnt: crackling fat, a low whoomp of flame and a dying char sizzle. */
   roast(ctx: AudioContext) {
     // Fat crackling in the pan: short random pops, nothing like the Smoke's steady hiss...
     for (let i = 0; i < 18; i++) {
@@ -133,11 +133,9 @@ const EFFECTS = {
         to: pitch,
       })
     }
-    // ...a body-drop thud, a radio squelch and a low two-tone alert, like a CS round-lost cue.
-    slide(ctx, 90, 38, 0.35, 0.45)
-    hiss(ctx, { at: 0.25, length: 0.09, volume: 0.25, filter: 'bandpass', from: 1700, to: 1400 })
-    tone(ctx, 220, 0.38, 0.18, 0.12, 'square')
-    tone(ctx, 165, 0.6, 0.35, 0.12, 'square')
+    // ...the flames swallowing it with a low whoomp, then the charring sizzle dying away.
+    hiss(ctx, { length: 0.5, volume: 0.4, filter: 'lowpass', from: 700, to: 140 })
+    hiss(ctx, { at: 0.2, length: 1.1, volume: 0.07, filter: 'bandpass', from: 2600, to: 1800 })
   },
 
   /** Finish or Max Win: a quick rising arpeggio. */

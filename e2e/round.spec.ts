@@ -95,3 +95,16 @@ test('the page fits a phone screen without sideways scrolling', async ({ page, i
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await expect(page.getByRole('combobox', { name: 'Difficulty' })).toBeVisible()
 })
+
+test('a reload mid-Round shows the chicken on its Lane without replaying the Step', async ({
+  page,
+}) => {
+  await rigSeeds(page, (lane) => lane === null || lane > 2)
+  await placeBet(page, '10')
+  await page.getByRole('button', { name: 'Play' }).click()
+  await expect(page.getByRole('button', { name: 'GO' })).toBeEnabled()
+
+  await page.reload()
+  await expect(page.locator('[data-lane="1"] img[alt="Chicken"]')).toBeVisible()
+  await expect(page.locator('img[class*="grenade"], img[class*="smoke"]')).toHaveCount(0)
+})

@@ -115,7 +115,8 @@ export function Road() {
                 <Badge multiplier={multiplier} />
                 <div className={styles.ground}>
                   {state === 'ahead' && <img className={styles.fire} src={SPRITES.fire} alt="" />}
-                  {n === lane && (round.phase === 'playing' || stepWin) && (
+                  {/* Only for a Step seen on screen: after a reload the chicken just stands there. */}
+                  {n === lane && move.kind === 'step' && (round.phase === 'playing' || stepWin) && (
                     <Fragment key={`step-${round.nonce}-${n}`}>
                       <DousedFire />
                       <Grenade miss={false} />
