@@ -92,7 +92,7 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
 
 ### Settings, language, sound
 
-40. As a Russian-speaking player, I want the UI in Russian when my browser is Russian, so that I can play in my language.
+40. As a Russian-speaking player, I want to switch the UI to Russian (English is the default), so that I can play in my language.
 41. As a player, I want to switch between EN and RU and have my choice remembered, so that it sticks between visits.
 42. As a player, I want sound effects for Step, Smoke, Hit and Cash Out, off by default with a toggle in the top bar, so that I decide whether the game makes noise.
 43. As a player, I want my settings (sound, language, auto-reset) remembered, so that I don't set them every time.
@@ -145,7 +145,7 @@ See [docs/spec.md](../spec.md), [GLOSSARY.md](../../GLOSSARY.md) and [ADR 0001](
   - settings toggles (sound, language, auto-reset after Hit);
   - derived values: Cash Out amount, Max Win Lane, whether each action is allowed.
   - It persists Balance, the Round in progress, Recent Games (last 10 Rounds) and settings.
-- **i18n.** A small typed `en`/`ru` dictionary. A missing key is a type error. The default language comes from `navigator.language`.
+- **i18n.** A small typed `en`/`ru` dictionary. A missing key is a type error. The default language is English.
 - **Sound.** Four effects, lazily loaded and gated by the sound setting.
 - **UI components:**
   - Top bar: name, Balance, language, sound, Fairness, rules, settings.

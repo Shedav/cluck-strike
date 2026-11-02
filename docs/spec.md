@@ -79,7 +79,7 @@ Recent Games lists the player's last 10 finished Rounds: Difficulty, Bet, Multip
 - **Art:** cartoon flat 2D with a bold outline.
   - CC0 packs to start; AI-generated sprites later. Claude writes the prompts and the art direction, the user generates the images.
   - Sprites live in `public/sprites/` under fixed names, so they can be swapped without code changes.
-- **i18n:** a small typed dictionary for `en` and `ru`. The default language comes from `navigator.language`, and the player's choice is persisted.
+- **i18n:** a small typed dictionary for `en` and `ru`. The default language is English; the player can switch to Russian and the choice is persisted.
 
 ## Out of scope
 

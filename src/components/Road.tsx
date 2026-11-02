@@ -20,7 +20,9 @@ export function Road() {
   const cells = useRef<(HTMLDivElement | null)[]>([])
   // The burn plays after the throw and the hop, so the Hit result stays up a bit longer.
   const autoReset = useSettings((s) => s.autoReset)
-  const burnt = useAfterDelay(round.phase === 'hit' && autoReset, round.nonce, STEP_MS + RESULT_MS)
+  // The toggle only decides whether the reset timer runs; turning it off never brings back a Hit
+  // that was already cleared.
+  const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS, autoReset)
   // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
   // fire stays on the Lane for a moment first.
   const lane = isWin(round.phase) || burnt ? 0 : round.lane
@@ -246,14 +248,14 @@ function Badge({ multiplier }: { multiplier: number }) {
   )
 }
 
-/** True once `active` has held for `ms` within the Round identified by `nonce`. */
-function useAfterDelay(active: boolean, nonce: number | null, ms = RESULT_MS) {
+/** True once `active` has held for `ms` (while `running`) within the Round identified by `nonce`. */
+function useAfterDelay(active: boolean, nonce: number | null, ms = RESULT_MS, running = true) {
   const [doneFor, setDoneFor] = useState<number | null>(null)
   useEffect(() => {
-    if (!active) return
+    if (!active || !running) return
     const timer = setTimeout(() => setDoneFor(nonce), ms)
     return () => clearTimeout(timer)
-  }, [active, nonce, ms])
+  }, [active, nonce, ms, running])
   return active && doneFor === nonce
 }
 
