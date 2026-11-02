@@ -1,7 +1,5 @@
 .panel {
   padding: 16px;
-  border-radius: var(--radius-panel);
-  background: linear-gradient(var(--panel-from), var(--panel-to));
   overflow-x: auto;
 }
 
@@ -34,7 +32,7 @@
 
 .table td {
   padding: 10px 12px;
-  background: var(--surface);
+  background: var(--tile);
   color: var(--text-body);
   white-space: nowrap;
 }
@@ -71,20 +69,8 @@
 }
 
 .verify {
-  padding: 4px 12px;
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-  color: var(--text-muted);
+  padding: 6px 14px;
   font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.verify:hover,
-.verify:focus-visible {
-  color: var(--text);
-  outline: 2px solid var(--accent);
 }
 
 .srOnly {
@@ -100,15 +86,22 @@
   width: 100%;
   height: 40px;
   margin-top: 8px;
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-  color: var(--text-muted);
-  font-weight: 600;
-  cursor: pointer;
-  transition: color var(--transition);
+  font-size: 13px;
 }
 
-.more:hover {
-  color: var(--text);
+/* Phones: drop the Difficulty column and tighten cells so Verify stays on screen. */
+@media (max-width: 639px) {
+  .table th:first-child,
+  .table td:first-child {
+    display: none;
+  }
+
+  .table td:nth-child(2) {
+    border-radius: 8px 0 0 8px;
+  }
+
+  .table th,
+  .table td {
+    padding-inline: 8px;
+  }
 }

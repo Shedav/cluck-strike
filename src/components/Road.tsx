@@ -93,7 +93,7 @@ export function Road() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className={styles.scene}>
+      <div className={`${styles.scene} surface`}>
         <motion.div
           className={styles.road}
           animate={hitNow ? { x: [0, -8, 8, -6, 6, 0] } : { x: 0 }}

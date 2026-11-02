@@ -163,8 +163,8 @@
 }
 
 .scene {
-  position: relative;
   min-width: 0; /* lets the road scroll instead of widening the page */
+  overflow: hidden;
 }
 
 .popup {

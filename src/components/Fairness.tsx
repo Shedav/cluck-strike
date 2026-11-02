@@ -11,7 +11,21 @@ export function FairnessButton() {
   const t = useT()
   return (
     <>
-      <button className={styles.trigger} onClick={() => setOpen(true)}>
+      <button className="link" onClick={() => setOpen(true)}>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
         {t('fairness')}
       </button>
       <Dialog open={open} onClose={() => setOpen(false)} title={t('provablyFair')}>
@@ -43,7 +57,7 @@ export function Dialog({
   return (
     <dialog
       ref={dialog}
-      className={styles.dialog}
+      className={`${styles.dialog} surface`}
       aria-label={title}
       onClose={onClose}
       // A click on the backdrop lands on the dialog itself.
@@ -197,7 +211,7 @@ function Field({ label, value }: { label: string; value: string }) {
       <div className={styles.row}>
         <code className={styles.value}>{value}</code>
         <button
-          className={styles.copy}
+          className={`${styles.copy} secondary`}
           aria-label={t('copyLabel', { label })}
           onClick={() =>
             void navigator.clipboard?.writeText(value).then(() => {

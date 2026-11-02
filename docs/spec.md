@@ -62,9 +62,11 @@ Recent Games keeps the player's last 100 finished Rounds and shows them 10 at a 
 
 - **Style follows cs2skin.com:**
   - Page background `#060b15` with a faint purple glow.
-  - Panels use a gradient from `#121925` to `#111820` with a 12px radius. Inputs and chips use `#0c111c`.
+  - Cards (from cs2skin.com/royale): the scene, Recent Games and dialogs have a 16px radius, a 1px `rgb(255 255 255 / 0.15)` border and a light shine along the top edge; tiles inside are `#121925`.
+  - Game controls (from cs2skin.com/mines): the Bet panel is a plain grey gradient (`#121925` → `#111820`, 12px radius); the amount field is `#060b15`, chips and Difficulty tiles `#0c111c` with a violet border on the active one; header tools (sound, Fairness, Rules) are grey icon + text links.
+  - Layout: content up to 1328px wide, 32px side gutters (16px below 640px, none from 1372px), 16px between blocks.
   - Colors: accent `#7d2efa`, win `#15d77c`, Hit `#ed4438`, coin `#f8a605`. Text is `#ffffff`, `#ededed` and `#9dabbd`.
-  - Font: Chakra Petch. Buttons are pill-shaped with quick 0.16–0.2 s transitions.
+  - Font: Chakra Petch. Violet is kept for the primary button and the active state; buttons are flat and hover only changes the colour; secondary actions are dark grey pills. Labels like Max Win are gold, 12px.
 - **Currency:** our own gold coin icon in cs2skin style, placed before the number, with no `$`. Up to 2 decimals and thousands separators (`1,234.56`).
 - **Layout:**
   - **Top bar:** name, Balance, EN/RU, sound, Fairness, rules.

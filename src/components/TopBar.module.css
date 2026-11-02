@@ -20,7 +20,7 @@
 
 .title {
   margin: 0;
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 600;
   line-height: 1.1;
   color: var(--text);
@@ -36,19 +36,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
 }
 
-.pill,
 .language {
   display: inline-grid;
   place-items: center;
-  height: 36px;
   min-width: 36px;
-  padding: 0 14px;
   border: 0;
   border-radius: var(--radius-pill);
-  background: var(--surface);
+  background: transparent;
   color: var(--text-muted);
   font-weight: 600;
   cursor: pointer;
@@ -57,12 +54,6 @@
     color var(--transition);
 }
 
-.pill[aria-pressed='true'] {
-  color: var(--text);
-}
-
-.pill:hover,
-.pill:focus-visible,
 .language:hover,
 .language:focus-visible {
   background: var(--surface-raised);
@@ -144,9 +135,13 @@
 }
 
 /* Phones: logo and Balance share the first row, the tools wrap under them. */
-@media (max-width: 560px) {
+@media (max-width: 639px) {
   .tagline {
     display: none;
+  }
+
+  .title {
+    font-size: 24px;
   }
 
   .balance {
@@ -156,9 +151,5 @@
   .tools {
     order: 2;
     width: 100%;
-  }
-
-  .pill {
-    padding: 0 12px;
   }
 }

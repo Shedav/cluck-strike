@@ -17,7 +17,7 @@ export function RecentGames() {
   const t = useT()
 
   return (
-    <section className={styles.panel} aria-labelledby="recent-games">
+    <section className={`${styles.panel} surface`} aria-labelledby="recent-games">
       <h2 id="recent-games" className={styles.title}>
         {t('recentGames')}
       </h2>
@@ -57,7 +57,7 @@ export function RecentGames() {
                   </td>
                   <td>
                     <button
-                      className={styles.verify}
+                      className={`${styles.verify} secondary`}
                       onClick={(e) => {
                         e.stopPropagation()
                         setSelected(round)
@@ -73,7 +73,7 @@ export function RecentGames() {
         </table>
       )}
       {recentGames.length > shown && (
-        <button className={styles.more} onClick={() => setShown(shown + PAGE)}>
+        <button className={`${styles.more} secondary`} onClick={() => setShown(shown + PAGE)}>
           {t('loadMore')}
         </button>
       )}

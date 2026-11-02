@@ -4,7 +4,8 @@
   align-items: flex-end;
   gap: 16px;
   padding: 16px;
-  border-radius: var(--radius-panel);
+  /* cs2skin's game side panel (Mines): a plain grey gradient, no border. */
+  border-radius: 12px;
   background: linear-gradient(var(--panel-from), var(--panel-to));
 }
 
@@ -26,7 +27,7 @@
   padding: 0 12px;
   height: 44px;
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--bg);
 }
 
 .input {
@@ -79,6 +80,10 @@
   background: var(--accent-light);
 }
 
+.cashOut:hover:not(:disabled) {
+  background: #ffb72e;
+}
+
 .cashOut {
   background: var(--coin);
   color: #1a1100;
@@ -120,19 +125,17 @@
 
 .tabs {
   display: flex;
-  gap: 4px;
-  padding: 4px;
+  gap: 6px;
   height: 44px;
-  border-radius: 8px;
-  background: var(--surface);
 }
 
 .tab {
   display: grid;
   place-items: center;
   padding: 0 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1.5px solid transparent;
+  background: var(--surface);
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 600;
@@ -239,7 +242,7 @@
 }
 
 /* Phones: everything stacks at full width and Difficulty becomes a dropdown. */
-@media (max-width: 560px) {
+@media (max-width: 639px) {
   .panel {
     flex-direction: column;
     align-items: stretch;
@@ -281,4 +284,9 @@
     min-width: 0;
     justify-content: center;
   }
+}
+
+/* Like cs2skin's gold "Total Prize" label. */
+.maxWin .label {
+  color: var(--coin);
 }
