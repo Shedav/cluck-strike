@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest'
 import { verifyRound } from './fairness'
 import { createMockServer } from './mockServer'
 import type { Difficulty } from './odds'
-import { canCashOut, canPlay, cashOutCents, createGameStore } from './store'
+import { betError, canCashOut, canPlay, canTopUp, cashOutCents, createGameStore } from './store'
+import { parseCoins } from '../format'
 
 const CLIENT_SEED = 'test-client'
 
@@ -18,9 +19,9 @@ async function seedWithHitLane(
   throw new Error('no seed found')
 }
 
-function gameWith(serverSeed: string) {
+function gameWith(serverSeed: string, balanceCents?: number) {
   const server = createMockServer({ newSeed: () => serverSeed })
-  return createGameStore({ server, clientSeed: CLIENT_SEED })
+  return createGameStore({ server, clientSeed: CLIENT_SEED, balanceCents })
 }
 
 describe('game store', () => {
@@ -77,14 +78,44 @@ describe('game store', () => {
     expect(game.getState().round.lane).toBe(2)
   })
 
-  test('a Bet above the Balance or below one cent cannot start a Round', async () => {
+  test.each([
+    ['', 'invalid'],
+    ['-5', 'invalid'],
+    ['abc', 'invalid'],
+    ['1.234', 'invalid'],
+    ['0', 'belowMin'],
+    ['0.00', 'belowMin'],
+    ['150.01', 'aboveMax'],
+    ['0.01', null],
+    ['150', null],
+    ['2.5', null],
+  ])('Bet input %j is %s', async (text, error) => {
     const game = gameWith('any')
-    game.getState().setBet(100_001)
-    expect(canPlay(game.getState())).toBe(false)
+    game.getState().setBet(parseCoins(text))
+    expect(betError(game.getState())).toBe(error)
+    expect(canPlay(game.getState())).toBe(error === null)
     await game.getState().play()
-    expect(game.getState().round.phase).toBe('idle')
-    game.getState().setBet(0)
-    expect(canPlay(game.getState())).toBe(false)
+    expect(game.getState().round.phase).toBe(error === null ? 'playing' : 'idle')
+  })
+
+  test('a Bet above the Balance cannot start a Round', async () => {
+    const game = gameWith('any', 500)
+    game.getState().setBet(501)
+    expect(betError(game.getState())).toBe('aboveBalance')
+    await game.getState().play()
+    expect(game.getState().balanceCents).toBe(500)
+  })
+
+  test('top-up appears only when the Balance is below the minimum Bet and restores 1,000', async () => {
+    const rich = gameWith('any', 1)
+    expect(canTopUp(rich.getState())).toBe(false)
+    rich.getState().topUp()
+    expect(rich.getState().balanceCents).toBe(1)
+
+    const broke = gameWith('any', 0)
+    expect(canTopUp(broke.getState())).toBe(true)
+    broke.getState().topUp()
+    expect(broke.getState().balanceCents).toBe(100_000)
   })
 
   test('a finished Round verifies to the Hit Lane that actually happened', async () => {

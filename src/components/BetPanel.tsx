@@ -1,7 +1,18 @@
 import { useState } from 'react'
 import { formatCoins, parseCoins } from '../format'
 import { DIFFICULTIES, laneCount, payoutCents, type Difficulty } from '../game/odds'
-import { canCashOut, canGo, canPlay, cashOutCents, useGame } from '../game/store'
+import {
+  betError,
+  canCashOut,
+  canGo,
+  canPlay,
+  canTopUp,
+  cashOutCents,
+  MAX_BET_CENTS,
+  MIN_BET_CENTS,
+  useGame,
+  type BetError,
+} from '../game/store'
 import { Coin } from './Coin'
 import styles from './BetPanel.module.css'
 
@@ -9,26 +20,67 @@ export function BetPanel() {
   const game = useGame((s) => s)
   const [betText, setBetText] = useState(() => (game.betCents / 100).toFixed(2))
   const playing = game.round.phase === 'playing'
+  const error = playing ? null : betError(game)
+
+  function choose(cents: number) {
+    setBetText((cents / 100).toFixed(2))
+    game.setBet(cents)
+  }
 
   return (
     <section className={styles.panel} aria-label="Bet">
-      <label className={styles.bet}>
-        <span className={styles.label}>Bet Amount</span>
-        <span className={styles.inputBox}>
-          <Coin />
-          <input
-            className={styles.input}
-            inputMode="decimal"
-            value={betText}
+      <div className={styles.bet}>
+        <label className={styles.label} htmlFor="bet-amount">
+          Bet Amount
+        </label>
+        <div className={styles.betRow}>
+          <button className={styles.chip} disabled={playing} onClick={() => choose(MIN_BET_CENTS)}>
+            MIN
+          </button>
+          <span className={styles.inputBox}>
+            <Coin />
+            <input
+              id="bet-amount"
+              className={styles.input}
+              inputMode="decimal"
+              value={betText}
+              disabled={playing}
+              aria-invalid={error !== null}
+              aria-describedby={error ? 'bet-error' : undefined}
+              onChange={(e) => {
+                setBetText(e.target.value)
+                game.setBet(parseCoins(e.target.value))
+              }}
+            />
+          </span>
+          <button
+            className={styles.chip}
             disabled={playing}
-            aria-invalid={!canPlay(game) && !playing && !game.pending}
-            onChange={(e) => {
-              setBetText(e.target.value)
-              game.setBet(parseCoins(e.target.value))
-            }}
-          />
-        </span>
-      </label>
+            onClick={() =>
+              choose(Math.max(MIN_BET_CENTS, Math.min(MAX_BET_CENTS, game.balanceCents)))
+            }
+          >
+            MAX
+          </button>
+        </div>
+        <div className={styles.betRow}>
+          {PRESETS_CENTS.map((cents) => (
+            <button
+              key={cents}
+              className={styles.chip}
+              disabled={playing}
+              onClick={() => choose(cents)}
+            >
+              <Coin size={12} /> {cents / 100}
+            </button>
+          ))}
+        </div>
+        {error && (
+          <span id="bet-error" className={styles.error}>
+            {BET_ERRORS[error]}
+          </span>
+        )}
+      </div>
 
       <fieldset className={styles.difficulty} disabled={playing}>
         <legend className={styles.label}>Difficulty</legend>
@@ -51,7 +103,7 @@ export function BetPanel() {
       <div className={styles.maxWin}>
         <span className={styles.label}>Max Win</span>
         <span className={styles.maxWinValue}>
-          <Coin /> {formatCoins(maxWinCents(game.betCents, game.round.difficulty))}
+          <Coin /> {error ? '—' : formatCoins(maxWinCents(game.betCents, game.round.difficulty))}
         </span>
       </div>
 
@@ -65,6 +117,10 @@ export function BetPanel() {
               Cash Out <Coin /> {formatCoins(cashOutCents(game))}
             </button>
           </>
+        ) : canTopUp(game) ? (
+          <button className={styles.go} onClick={game.topUp}>
+            Top up demo balance
+          </button>
         ) : (
           <button className={styles.go} disabled={!canPlay(game)} onClick={game.play}>
             Play
@@ -79,6 +135,15 @@ export function BetPanel() {
   )
 }
 
+const PRESETS_CENTS = [200, 300, 800, 2000]
+
+const BET_ERRORS: Record<BetError, string> = {
+  invalid: 'Enter an amount like 3 or 2.50',
+  belowMin: `Minimum Bet is ${formatCoins(MIN_BET_CENTS)}`,
+  aboveMax: `Maximum Bet is ${formatCoins(MAX_BET_CENTS)}`,
+  aboveBalance: 'Not enough Balance',
+}
+
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   easy: 'Easy',
   medium: 'Medium',
@@ -88,7 +153,7 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 
 /** The most a Round can pay with this Bet: the last Lane's payout, which is capped at Max Win. */
 const maxWinCents = (betCents: number, difficulty: Difficulty) =>
-  Number.isInteger(betCents) ? payoutCents(betCents, difficulty, laneCount(difficulty)) : 0
+  payoutCents(betCents, difficulty, laneCount(difficulty))
 
 function RoundStatus() {
   const round = useGame((s) => s.round)
