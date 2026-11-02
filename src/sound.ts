@@ -104,6 +104,44 @@ function slide(ctx: AudioContext, from: number, to: number, length: number, volu
   osc.stop(start + length + 0.02)
 }
 
+/**
+ * A chicken squawk: a buzzy tone that jerks up in pitch and sags, shaken by fast vibrato and shaped
+ * by two nasal formants.
+ */
+function squawk(ctx: AudioContext, at: number, length: number, pitch: number, volume: number) {
+  const start = ctx.currentTime + at
+  const voice = ctx.createOscillator()
+  voice.type = 'sawtooth'
+  voice.frequency.setValueAtTime(pitch * 0.8, start)
+  voice.frequency.exponentialRampToValueAtTime(pitch * 1.5, start + length * 0.15)
+  voice.frequency.exponentialRampToValueAtTime(pitch * 0.7, start + length)
+  const vibrato = ctx.createOscillator()
+  const depth = ctx.createGain()
+  vibrato.frequency.value = 38
+  depth.gain.value = pitch * 0.12
+  vibrato.connect(depth).connect(voice.frequency)
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.0001, start)
+  gain.gain.exponentialRampToValueAtTime(volume, start + 0.02)
+  gain.gain.setValueAtTime(volume, start + length * 0.6)
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + length)
+  for (const [frequency, q] of [
+    [1300, 6],
+    [2700, 8],
+  ]) {
+    const formant = ctx.createBiquadFilter()
+    formant.type = 'bandpass'
+    formant.frequency.value = frequency
+    formant.Q.value = q
+    voice.connect(formant).connect(gain)
+  }
+  gain.connect(ctx.destination)
+  for (const osc of [voice, vibrato]) {
+    osc.start(start)
+    osc.stop(start + length + 0.02)
+  }
+}
+
 const EFFECTS = {
   /** The smoke grenade flying: a rising band of noise. */
   throw(ctx: AudioContext) {
@@ -119,7 +157,7 @@ const EFFECTS = {
     slide(ctx, 110, 40, 0.6, 0.4)
     hiss(ctx, { length: 0.9, volume: 0.35, filter: 'lowpass', from: 1400, to: 200 })
   },
-  /** The chicken burnt: crackling fat, a low whoomp of flame and a dying char sizzle. */
+  /** The chicken burnt: crackling fat under its scream. */
   roast(ctx: AudioContext) {
     // Fat crackling in the pan: short random pops, nothing like the Smoke's steady hiss...
     for (let i = 0; i < 18; i++) {
@@ -133,9 +171,9 @@ const EFFECTS = {
         to: pitch,
       })
     }
-    // ...the flames swallowing it with a low whoomp, then the charring sizzle dying away.
-    hiss(ctx, { length: 0.5, volume: 0.4, filter: 'lowpass', from: 700, to: 140 })
-    hiss(ctx, { at: 0.2, length: 1.1, volume: 0.07, filter: 'bandpass', from: 2600, to: 1800 })
+    // ...under the chicken's scream: a short "bok" and a long "BAAWK".
+    squawk(ctx, 0.05, 0.16, 650, 0.18)
+    squawk(ctx, 0.28, 0.5, 820, 0.24)
   },
 
   /** Finish or Max Win: a quick rising arpeggio. */
