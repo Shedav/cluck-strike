@@ -1,7 +1,15 @@
 import { AnimatePresence, motion, MotionConfig } from 'motion/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { isWin, useGame } from '@/entities/round'
-import { HOP_MS, LANDED_PAUSE_MS, RESULT_MS, ROAST_MS, STEP_MS, THROW_MS } from '@/shared/config'
+import {
+  CASE_MS,
+  HOP_MS,
+  LANDED_PAUSE_MS,
+  RESULT_MS,
+  ROAST_MS,
+  STEP_MS,
+  THROW_MS,
+} from '@/shared/config'
 import { maxWinLane, MULTIPLIERS } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
 import { formatCoins, formatMultiplier, playSound } from '@/shared/lib'
@@ -249,9 +257,6 @@ function Burn() {
     />
   )
 }
-
-/** The golden case shaking, bursting open and settling, before the Finish is celebrated. */
-const CASE_MS = 1100
 
 /** The whole burn; with `STEP_MS` it ends before `RESULT_MS` resets the scene. */
 const BURN_MS = 1500

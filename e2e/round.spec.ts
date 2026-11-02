@@ -29,7 +29,7 @@ async function placeBet(page: Page, amount: string) {
 test('Play → GO → Cash Out increases the Balance', async ({ page }) => {
   await rigSeeds(page, (lane) => lane === null || lane > 2)
   await placeBet(page, '10')
-  await page.getByRole('button', { name: 'Play' }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   await page.getByRole('button', { name: 'GO' }).click()
   await page.getByRole('button', { name: /Cash Out 10\.70/ }).click()
 
@@ -43,11 +43,11 @@ test('Play → GO → Cash Out increases the Balance', async ({ page }) => {
 test('a Hit on the first Step loses the Bet', async ({ page }) => {
   await rigSeeds(page, (lane) => lane === 1)
   await placeBet(page, '10')
-  await page.getByRole('button', { name: 'Play' }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
 
   await expect(page.getByRole('status')).toHaveText('Hit on Lane 1. Bet lost.')
   await expect(page.getByTestId('balance')).toHaveText('990.00')
-  await expect(page.getByRole('button', { name: 'Play' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeEnabled()
 })
 
 test('a full Easy run crosses all 24 Lanes before the Finish', async ({ page }) => {
@@ -55,7 +55,7 @@ test('a full Easy run crosses all 24 Lanes before the Finish', async ({ page }) 
   await placeBet(page, '10')
   const chickenOn = (lane: number) => page.locator(`[data-lane="${lane}"] img[alt="Chicken"]`)
 
-  await page.getByRole('button', { name: 'Play' }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   await expect(chickenOn(1)).toBeVisible()
   for (let lane = 2; lane <= 24; lane++) {
     await page.getByRole('button', { name: 'GO' }).click()
@@ -101,7 +101,7 @@ test('a reload mid-Round shows the chicken on its Lane without replaying the Ste
 }) => {
   await rigSeeds(page, (lane) => lane === null || lane > 2)
   await placeBet(page, '10')
-  await page.getByRole('button', { name: 'Play' }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   await expect(page.getByRole('button', { name: 'GO' })).toBeEnabled()
 
   await page.reload()

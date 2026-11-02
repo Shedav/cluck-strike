@@ -17,3 +17,6 @@ export const LANDED_PAUSE_MS = 400
 
 /** How long a Round's result stays on the scene before the chicken returns to the start. */
 export const RESULT_MS = 2000
+
+/** On a Finish, the golden case shakes, bursts open and settles before the celebration starts. */
+export const CASE_MS = 1100

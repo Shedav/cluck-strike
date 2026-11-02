@@ -11,6 +11,7 @@ import {
   useGame,
   type BetError,
 } from '@/entities/round'
+import { AutoplayButton, useAutoplay } from '@/features/autoplay'
 import { STEP_MS } from '@/shared/config'
 import {
   DIFFICULTIES,
@@ -29,6 +30,9 @@ export function BetPanel() {
   const t = useT()
   const [betText, setBetText] = useState(() => (game.betCents / 100).toFixed(2))
   const playing = game.round.phase === 'playing'
+  const auto = useAutoplay((s) => s)
+  // The Bet and Difficulty stay fixed during a Round and for the whole Autoplay run.
+  const locked = playing || auto.running
   const error = playing ? null : betError(game)
   const [animating, setAnimating] = useState(false)
 
@@ -51,7 +55,7 @@ export function BetPanel() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key !== ' ' && e.key !== 'Enter') return
-      if (e.repeat || document.querySelector('dialog[open]')) return
+      if (e.repeat || auto.running || document.querySelector('dialog[open]')) return
       const el = document.activeElement
       if (el && el !== document.body && !(el instanceof HTMLElement && el.dataset.hotkey)) return
       e.preventDefault()
@@ -74,7 +78,7 @@ export function BetPanel() {
           {t('betAmount')}
         </label>
         <div className={styles.betRow}>
-          <button className={styles.chip} disabled={playing} onClick={() => choose(MIN_BET_CENTS)}>
+          <button className={styles.chip} disabled={locked} onClick={() => choose(MIN_BET_CENTS)}>
             {t('min')}
           </button>
           <span className={styles.inputBox}>
@@ -84,7 +88,7 @@ export function BetPanel() {
               className={styles.input}
               inputMode="decimal"
               value={betText}
-              disabled={playing}
+              disabled={locked}
               aria-invalid={error !== null}
               aria-describedby={error ? 'bet-error' : undefined}
               onChange={(e) => {
@@ -95,7 +99,7 @@ export function BetPanel() {
           </span>
           <button
             className={styles.chip}
-            disabled={playing}
+            disabled={locked}
             onClick={() =>
               choose(Math.max(MIN_BET_CENTS, Math.min(MAX_BET_CENTS, game.balanceCents)))
             }
@@ -108,7 +112,7 @@ export function BetPanel() {
             <button
               key={cents}
               className={styles.chip}
-              disabled={playing}
+              disabled={locked}
               onClick={() => choose(cents)}
             >
               <Coin size={12} /> {cents / 100}
@@ -124,7 +128,7 @@ export function BetPanel() {
         )}
       </div>
 
-      <fieldset className={styles.difficulty} disabled={playing}>
+      <fieldset className={styles.difficulty} disabled={locked}>
         <legend className={styles.label}>{t('difficulty')}</legend>
         {/* Tabs on wide screens, a dropdown on phones (CSS shows one of them). */}
         <select
@@ -163,7 +167,16 @@ export function BetPanel() {
       </div>
 
       <div className={styles.actions}>
-        {playing ? (
+        {auto.running ? (
+          <>
+            <span className={styles.autoProgress}>
+              {t('autoplayProgress', { current: auto.current, total: auto.total })}
+            </span>
+            <button className={styles.go} disabled={auto.stopping} onClick={auto.stop}>
+              {t(auto.stopping ? 'stopping' : 'stop')}
+            </button>
+          </>
+        ) : playing ? (
           <>
             <button
               key="cashOut"
@@ -188,14 +201,17 @@ export function BetPanel() {
             {t('topUp')}
           </button>
         ) : (
-          <button
-            className={styles.go}
-            data-hotkey="Space"
-            disabled={!canStep}
-            onClick={() => animated(game.play)}
-          >
-            {t('play')}
-          </button>
+          <>
+            <AutoplayButton className={styles.auto} disabled={!canStep} />
+            <button
+              className={styles.go}
+              data-hotkey="Space"
+              disabled={!canStep}
+              onClick={() => animated(game.play)}
+            >
+              {t('play')}
+            </button>
+          </>
         )}
       </div>
 
