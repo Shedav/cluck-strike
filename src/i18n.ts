@@ -83,6 +83,7 @@ const en = {
     'Each Step the chicken throws a smoke grenade at the next Lane. If the Smoke puts the fire out, it crosses and the Multiplier grows; if not, it is caught by the fire (a Hit) and the Bet is lost.',
   rulesStep3:
     'Press Cash Out at any time after a safe Step to take Bet × Multiplier. Crossing the last Lane cashes out automatically.',
+  rulesKeys: 'Keyboard: Space plays or makes the next Step (GO), Enter cashes out.',
   rulesOdds: 'Odds',
   rulesRtp:
     'RTP is 98%: whichever Lane you cash out on, the average return is 98% of the Bet. Harder Difficulties have fewer Lanes and higher Multipliers, with a bigger chance of a Hit on each Step.',
@@ -181,6 +182,7 @@ const ru: Record<MessageKey, string> = {
     'На каждом шаге курица бросает дымовую гранату на следующую полосу. Если дым тушит огонь, она проходит и множитель растёт; если нет — курица сгорает, ставка проиграна.',
   rulesStep3:
     'После любого успешного шага можно нажать «Забрать» и получить ставку × множитель. Пройдя последнюю полосу, вы забираете выигрыш автоматически.',
+  rulesKeys: 'Клавиатура: пробел — «Играть» или следующий шаг («Вперёд»), Enter — «Забрать».',
   rulesOdds: 'Шансы',
   rulesRtp:
     'RTP 98%: на какой бы полосе вы ни забрали, в среднем возвращается 98% ставки. На сложных уровнях полос меньше и множители выше, но и шанс сгореть на каждом шаге больше.',

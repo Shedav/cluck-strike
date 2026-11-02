@@ -78,6 +78,7 @@ function Rules() {
         <li>{t('rulesStep1')}</li>
         <li>{t('rulesStep2')}</li>
         <li>{t('rulesStep3')}</li>
+        <li>{t('rulesKeys')}</li>
       </ol>
       <h3>{t('rulesOdds')}</h3>
       <p>{t('rulesRtp')}</p>

@@ -27,11 +27,18 @@ function audio(): AudioContext | null {
 }
 
 /** A short sine "ping" at `frequency` Hz starting `at` seconds from now. */
-function tone(ctx: AudioContext, frequency: number, at: number, length: number, volume: number) {
+function tone(
+  ctx: AudioContext,
+  frequency: number,
+  at: number,
+  length: number,
+  volume: number,
+  type: OscillatorType = 'sine',
+) {
   const start = ctx.currentTime + at
   const osc = ctx.createOscillator()
   const gain = ctx.createGain()
-  osc.type = 'sine'
+  osc.type = type
   osc.frequency.value = frequency
   gain.gain.setValueAtTime(0.0001, start)
   gain.gain.exponentialRampToValueAtTime(volume, start + 0.01)
@@ -112,26 +119,27 @@ const EFFECTS = {
     slide(ctx, 110, 40, 0.6, 0.4)
     hiss(ctx, { length: 0.9, volume: 0.35, filter: 'lowpass', from: 1400, to: 200 })
   },
-  /** The chicken roasted: a frying sizzle under a sad, falling squawk. */
+  /** The chicken roasted: crackling fat, a thud and a radio-style round-lost alert. */
   roast(ctx: AudioContext) {
-    hiss(ctx, { length: 1.2, volume: 0.2, filter: 'highpass', from: 4000, to: 2500 })
-    const start = ctx.currentTime
-    const osc = ctx.createOscillator()
-    const voice = ctx.createBiquadFilter()
-    const gain = ctx.createGain()
-    osc.type = 'sawtooth'
-    osc.frequency.setValueAtTime(900, start)
-    osc.frequency.exponentialRampToValueAtTime(280, start + 0.55)
-    voice.type = 'bandpass'
-    voice.frequency.value = 1200
-    voice.Q.value = 4
-    gain.gain.setValueAtTime(0.0001, start)
-    gain.gain.exponentialRampToValueAtTime(0.25, start + 0.03)
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.6)
-    osc.connect(voice).connect(gain).connect(ctx.destination)
-    osc.start(start)
-    osc.stop(start + 0.62)
+    // Fat crackling in the pan: short random pops, nothing like the Smoke's steady hiss...
+    for (let i = 0; i < 18; i++) {
+      const pitch = 1500 + Math.random() * 3000
+      hiss(ctx, {
+        at: Math.random() * 0.9,
+        length: 0.012 + Math.random() * 0.02,
+        volume: 0.15 + Math.random() * 0.2,
+        filter: 'bandpass',
+        from: pitch,
+        to: pitch,
+      })
+    }
+    // ...a body-drop thud, a radio squelch and a low two-tone alert, like a CS round-lost cue.
+    slide(ctx, 90, 38, 0.35, 0.45)
+    hiss(ctx, { at: 0.25, length: 0.09, volume: 0.25, filter: 'bandpass', from: 1700, to: 1400 })
+    tone(ctx, 220, 0.38, 0.18, 0.12, 'square')
+    tone(ctx, 165, 0.6, 0.35, 0.12, 'square')
   },
+
   /** Finish or Max Win: a quick rising arpeggio. */
   fanfare(ctx: AudioContext) {
     ;[1046.5, 1318.5, 1568, 2093].forEach((note, i) =>
