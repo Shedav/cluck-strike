@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { sha256, verifyRound } from '../game/fairness'
 import { isWin, type Round } from '../game/round'
 import { useGame } from '../game/store'
@@ -6,35 +6,66 @@ import styles from './Fairness.module.css'
 
 /** Top-bar button that opens the provably fair modal. */
 export function FairnessButton() {
-  const dialog = useRef<HTMLDialogElement>(null)
   const [open, setOpen] = useState(false)
-
   return (
     <>
-      <button
-        className={styles.trigger}
-        onClick={() => {
-          dialog.current?.showModal()
-          setOpen(true)
-        }}
-      >
+      <button className={styles.trigger} onClick={() => setOpen(true)}>
         Fairness
       </button>
-      <dialog
-        ref={dialog}
-        className={styles.dialog}
-        aria-labelledby="fairness-title"
-        onClose={() => setOpen(false)}
-        // A click on the backdrop lands on the dialog itself.
-        onClick={(e) => e.target === dialog.current && dialog.current.close()}
-      >
-        {open && <FairnessContent onClose={() => dialog.current?.close()} />}
-      </dialog>
+      <Dialog open={open} onClose={() => setOpen(false)} title="Provably fair">
+        <FairnessContent />
+      </Dialog>
     </>
   )
 }
 
-function FairnessContent({ onClose }: { onClose: () => void }) {
+/** A native modal dialog (focus trap, Escape) that also closes on a backdrop click. */
+export function Dialog({
+  open,
+  onClose,
+  title,
+  children,
+}: {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: ReactNode
+}) {
+  const dialog = useRef<HTMLDialogElement>(null)
+  useEffect(() => {
+    if (open) dialog.current?.showModal()
+    else dialog.current?.close()
+  }, [open])
+
+  return (
+    <dialog
+      ref={dialog}
+      className={styles.dialog}
+      aria-label={title}
+      onClose={onClose}
+      // A click on the backdrop lands on the dialog itself.
+      onClick={(e) => e.target === dialog.current && dialog.current.close()}
+    >
+      {open && (
+        <div className={styles.content}>
+          <header className={styles.header}>
+            <h2 className={styles.title}>{title}</h2>
+            <button
+              className={styles.close}
+              onClick={() => dialog.current?.close()}
+              aria-label="Close"
+            >
+              ×
+            </button>
+          </header>
+          {children}
+        </div>
+      )}
+    </dialog>
+  )
+}
+
+function FairnessContent() {
   const round = useGame((s) => s.round)
   const next = useGame((s) => s.next)
   const clientSeed = useGame((s) => s.clientSeed)
@@ -43,15 +74,7 @@ function FairnessContent({ onClose }: { onClose: () => void }) {
   const playing = round.phase === 'playing'
 
   return (
-    <div className={styles.content}>
-      <header className={styles.header}>
-        <h2 id="fairness-title" className={styles.title}>
-          Provably fair
-        </h2>
-        <button className={styles.close} onClick={onClose} aria-label="Close">
-          ×
-        </button>
-      </header>
+    <>
       <p className={styles.intro}>
         Each Round's Hit Lane is HMAC-SHA256(Server Seed, Client Seed:nonce). The Server Seed's hash
         is shown before you play and the seed itself after, so you can check nothing changed.
@@ -97,7 +120,7 @@ function FairnessContent({ onClose }: { onClose: () => void }) {
           <RoundProof round={round} />
         </section>
       )}
-    </div>
+    </>
   )
 }
 

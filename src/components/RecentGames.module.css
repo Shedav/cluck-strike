@@ -1,0 +1,96 @@
+.panel {
+  padding: 16px;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(var(--panel-from), var(--panel-to));
+  overflow-x: auto;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 0 12px 4px;
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.table td {
+  padding: 10px 12px;
+  background: var(--surface);
+  color: var(--text-body);
+  white-space: nowrap;
+}
+
+.table td:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.table td:last-child {
+  border-radius: 0 8px 8px 0;
+  text-align: right;
+}
+
+.table td svg {
+  vertical-align: -2px;
+}
+
+.table tbody tr {
+  cursor: pointer;
+}
+
+.table tbody tr:hover td {
+  background: #111827;
+}
+
+.win .result {
+  color: var(--win);
+  font-weight: 600;
+}
+
+.hit .result {
+  color: var(--hit);
+  font-weight: 600;
+}
+
+.verify {
+  padding: 4px 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verify:hover,
+.verify:focus-visible {
+  color: var(--text);
+  outline: 2px solid var(--accent);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

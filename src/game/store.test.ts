@@ -183,4 +183,17 @@ describe('game store', () => {
     game.getState().setClientSeed('other')
     expect(game.getState().clientSeed).toBe('my-seed')
   })
+
+  test('Recent Games keeps the last 10 finished Rounds, newest first', async () => {
+    let i = 0
+    const server = createMockServer({ newSeed: () => `seed-${i++}` })
+    const game = createGameStore({ server, clientSeed: CLIENT_SEED })
+    for (let round = 0; round < 12; round++) {
+      await game.getState().play()
+      if (game.getState().round.phase === 'playing') await game.getState().cashOut()
+    }
+    const recent = game.getState().recentGames
+    expect(recent.map((r) => r.nonce)).toEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 2])
+    expect(recent.every((r) => r.phase !== 'playing' && r.serverSeed !== null)).toBe(true)
+  })
 })

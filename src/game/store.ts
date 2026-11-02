@@ -13,6 +13,8 @@ export interface GameState {
   /** Commitment for the next Round: the hash of its Server Seed and its nonce. */
   next: { serverSeedHash: string; nonce: number } | null
   round: Round
+  /** The player's last finished Rounds, newest first, with their revealed seeds. */
+  recentGames: Round[]
   /** A server call is in flight; further actions are ignored until it settles. */
   pending: boolean
   setBet(betCents: number): void
@@ -61,27 +63,41 @@ export const cashOutCents = (s: GameState) =>
 const PHASES: readonly Phase[] = ['idle', 'playing', 'hit', 'cashedOut', 'finished', 'maxWin']
 const isInt = (x: unknown, min = 0) => Number.isInteger(x) && (x as number) >= min
 
-/** Persisted fields that are safe to restore; anything else falls back to defaults. */
-function validSaved(saved: unknown): Partial<GameState> {
-  if (typeof saved !== 'object' || saved === null) return {}
-  const x = saved as Record<string, unknown>
-  const r = x.round as Record<string, unknown> | undefined
-  const roundOk =
-    typeof r === 'object' &&
-    r !== null &&
+const RECENT_GAMES = 10
+
+function isRound(x: unknown): x is Round {
+  if (typeof x !== 'object' || x === null) return false
+  const r = x as Record<string, unknown>
+  return (
     PHASES.includes(r.phase as Phase) &&
     DIFFICULTIES.includes(r.difficulty as Difficulty) &&
     isInt(r.betCents) &&
     isInt(r.payoutCents) &&
     isInt(r.lane) &&
     (r.lane as number) <= laneCount(r.difficulty as Difficulty)
+  )
+}
+
+/** Persisted fields that are safe to restore; anything else falls back to defaults. */
+function validSaved(saved: unknown): Partial<GameState> {
+  if (typeof saved !== 'object' || saved === null) return {}
+  const x = saved as Record<string, unknown>
   return {
     ...(isInt(x.balanceCents) && { balanceCents: x.balanceCents as number }),
     ...(isInt(x.betCents) && { betCents: x.betCents as number }),
     ...(typeof x.clientSeed === 'string' && { clientSeed: x.clientSeed }),
-    ...(roundOk && { round: r as unknown as Round }),
+    ...(isRound(x.round) && { round: x.round }),
+    ...(Array.isArray(x.recentGames) && {
+      recentGames: x.recentGames.filter(isRound).slice(0, RECENT_GAMES),
+    }),
   }
 }
+
+/** Adds a just-finished Round to the front of Recent Games. */
+const withRecent = (recentGames: Round[], round: Round) =>
+  round.phase === 'playing' || round.phase === 'idle'
+    ? recentGames
+    : [round, ...recentGames].slice(0, RECENT_GAMES)
 
 const STORAGE_KEY = 'cluck-strike:game'
 
@@ -126,11 +142,15 @@ export function createGameStore({
         async function step() {
           if (get().round.phase !== 'playing') return
           const result = await server.step()
-          set((s) => ({
-            round: stepped(s.round, result),
-            balanceCents:
-              'payoutCents' in result ? s.balanceCents + result.payoutCents : s.balanceCents,
-          }))
+          set((s) => {
+            const round = stepped(s.round, result)
+            return {
+              round,
+              recentGames: withRecent(s.recentGames, round),
+              balanceCents:
+                'payoutCents' in result ? s.balanceCents + result.payoutCents : s.balanceCents,
+            }
+          })
         }
 
         return {
@@ -139,6 +159,7 @@ export function createGameStore({
           clientSeed,
           next: null,
           round: idleRound('easy'),
+          recentGames: [],
           pending: false,
 
           setBet(betCents) {
@@ -187,10 +208,14 @@ export function createGameStore({
             exclusive(async () => {
               if (!cashOutAllowed(get())) return
               const result = await server.cashOut()
-              set((s) => ({
-                balanceCents: s.balanceCents + result.payoutCents,
-                round: cashedOut(s.round, result),
-              }))
+              set((s) => {
+                const round = cashedOut(s.round, result)
+                return {
+                  balanceCents: s.balanceCents + result.payoutCents,
+                  round,
+                  recentGames: withRecent(s.recentGames, round),
+                }
+              })
             }),
 
           async resume() {
@@ -211,7 +236,8 @@ export function createGameStore({
         name: STORAGE_KEY,
         version: 1,
         storage: createJSONStorage(() => storage),
-        partialize: ({ balanceCents, betCents, clientSeed, round }) => ({
+        partialize: ({ balanceCents, betCents, clientSeed, round, recentGames }) => ({
+          recentGames,
           balanceCents,
           betCents: Number.isInteger(betCents) ? betCents : 300,
           clientSeed,

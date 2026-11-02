@@ -87,4 +87,7 @@ test('a reload after a finished Round starts from the start line, not the old re
   const after = await load(storage)
   expect(after.getState().round).toMatchObject({ phase: 'idle', lane: 0, difficulty: 'easy' })
   expect(after.getState().balanceCents).toBe(before.getState().balanceCents)
+  // ...while the finished Round stays in Recent Games.
+  expect(after.getState().recentGames).toEqual(before.getState().recentGames)
+  expect(after.getState().recentGames[0]).toMatchObject({ phase: 'cashedOut' })
 })

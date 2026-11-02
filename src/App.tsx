@@ -1,6 +1,7 @@
 import { BetPanel } from './components/BetPanel'
 import { Coin } from './components/Coin'
 import { FairnessButton } from './components/Fairness'
+import { RecentGames } from './components/RecentGames'
 import { Road } from './components/Road'
 import { formatCoins } from './format'
 import { useGame } from './game/store'
@@ -21,6 +22,7 @@ export default function App() {
       </header>
       <Road />
       <BetPanel />
+      <RecentGames />
     </main>
   )
 }
