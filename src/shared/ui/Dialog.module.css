@@ -1,0 +1,41 @@
+.dialog {
+  position: fixed; /* .surface sets relative; a modal dialog must stay in the viewport's centre */
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  background: var(--surface);
+  color: var(--text-body);
+}
+
+.dialog::backdrop {
+  background: rgb(6 11 21 / 0.75);
+}
+
+.content {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+}

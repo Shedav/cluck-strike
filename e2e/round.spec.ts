@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { verifyRound } from '../src/game/fairness.ts'
+import { verifyRound } from '../src/shared/game-rules/fairness.ts'
 
 /**
  * Makes every seed in the page predictable: crypto.getRandomValues fills with one byte, so both the
