@@ -228,7 +228,7 @@ function Chicken({ move, burning }: { move: Move; burning: boolean }) {
 
 const POSE_MS = { idle: 900, throw: THROW_MS, hop: HOP_MS }
 
-/** A Hit: once the chicken lands in the fire, it burns down to a pile of bones that stays there. */
+/** A Hit: the chicken lands in the Lane's fire and burns down to a pile of bones that stays there. */
 function Burn() {
   const t = useT()
   const [lit, setLit] = useState(false)
@@ -236,7 +236,9 @@ function Burn() {
     const timer = setTimeout(() => setLit(true), STEP_MS)
     return () => clearTimeout(timer)
   }, [])
-  if (!lit) return null
+  // Until the chicken lands, the Lane's fire keeps burning as on any Lane ahead.
+  if (!lit)
+    return <PixelSprite className={styles.fire} frames={FIRE} ms={FIRE_MS} loop width={64} />
   return (
     <PixelSprite
       className={styles.burn}
