@@ -63,7 +63,8 @@ export const cashOutCents = (s: GameState) =>
 const PHASES: readonly Phase[] = ['idle', 'playing', 'hit', 'cashedOut', 'finished', 'maxWin']
 const isInt = (x: unknown, min = 0) => Number.isInteger(x) && (x as number) >= min
 
-const RECENT_GAMES = 10
+/** How many finished Rounds Recent Games keeps; the table shows them 10 at a time. */
+export const RECENT_GAMES = 100
 
 function isRound(x: unknown): x is Round {
   if (typeof x !== 'object' || x === null) return false

@@ -45,6 +45,7 @@ const en = {
   multiplier: 'Multiplier',
   bet: 'Bet',
   verify: 'Verify',
+  loadMore: 'Load more',
   roundFairness: 'Round fairness',
 
   provablyFair: 'Provably fair',
@@ -142,6 +143,7 @@ const ru: Record<MessageKey, string> = {
   multiplier: 'Множитель',
   bet: 'Ставка',
   verify: 'Проверить',
+  loadMore: 'Показать ещё',
   roundFairness: 'Проверка раунда',
 
   provablyFair: 'Доказуемая честность',

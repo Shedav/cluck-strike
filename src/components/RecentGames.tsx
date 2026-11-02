@@ -7,10 +7,13 @@ import { Coin } from './Coin'
 import { Dialog, RoundProof } from './Fairness'
 import styles from './RecentGames.module.css'
 
-/** The player's last 10 Rounds; each row opens that Round's fairness proof. */
+const PAGE = 10
+
+/** The player's recent Rounds, 10 at a time; each row opens that Round's fairness proof. */
 export function RecentGames() {
   const recentGames = useGame((s) => s.recentGames)
   const [selected, setSelected] = useState<Round | null>(null)
+  const [shown, setShown] = useState(PAGE)
   const t = useT()
 
   return (
@@ -34,7 +37,7 @@ export function RecentGames() {
             </tr>
           </thead>
           <tbody>
-            {recentGames.map((round) => {
+            {recentGames.slice(0, shown).map((round) => {
               const won = isWin(round.phase)
               return (
                 <tr
@@ -68,6 +71,11 @@ export function RecentGames() {
             })}
           </tbody>
         </table>
+      )}
+      {recentGames.length > shown && (
+        <button className={styles.more} onClick={() => setShown(shown + PAGE)}>
+          {t('loadMore')}
+        </button>
       )}
       <Dialog open={selected !== null} onClose={() => setSelected(null)} title={t('roundFairness')}>
         {selected && <RoundProof round={selected} />}

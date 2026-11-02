@@ -2,7 +2,15 @@ import { describe, expect, test } from 'vitest'
 import { sha256, verifyRound } from './fairness'
 import { createMockServer } from './mockServer'
 import type { Difficulty } from './odds'
-import { betError, canCashOut, canPlay, canTopUp, cashOutCents, createGameStore } from './store'
+import {
+  betError,
+  canCashOut,
+  canPlay,
+  canTopUp,
+  cashOutCents,
+  createGameStore,
+  RECENT_GAMES,
+} from './store'
 import { parseCoins } from '../format'
 
 const CLIENT_SEED = 'test-client'
@@ -184,16 +192,18 @@ describe('game store', () => {
     expect(game.getState().clientSeed).toBe('my-seed')
   })
 
-  test('Recent Games keeps the last 10 finished Rounds, newest first', async () => {
+  test('Recent Games keeps the last 100 finished Rounds, newest first', async () => {
     let i = 0
     const server = createMockServer({ newSeed: () => `seed-${i++}` })
-    const game = createGameStore({ server, clientSeed: CLIENT_SEED })
-    for (let round = 0; round < 12; round++) {
+    const game = createGameStore({ server, clientSeed: CLIENT_SEED, balanceCents: 1_000_000 })
+    for (let round = 0; round < RECENT_GAMES + 2; round++) {
       await game.getState().play()
       if (game.getState().round.phase === 'playing') await game.getState().cashOut()
     }
     const recent = game.getState().recentGames
-    expect(recent.map((r) => r.nonce)).toEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 2])
+    expect(recent).toHaveLength(RECENT_GAMES)
+    expect(recent[0].nonce).toBe(RECENT_GAMES + 1)
+    expect(recent.at(-1)?.nonce).toBe(2)
     expect(recent.every((r) => r.phase !== 'playing' && r.serverSeed !== null)).toBe(true)
   })
 })
