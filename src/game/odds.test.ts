@@ -29,7 +29,7 @@ describe.each(DIFFICULTIES)('odds on %s', (difficulty) => {
     }
     // 3 standard errors on Hardcore (the widest spread) is about 0.04.
     expect(Math.abs(paid / (rounds * 100) - RTP)).toBeLessThan(0.05)
-  })
+  }, 30_000) // 20,000 HMACs; slow when files run in parallel
 })
 
 describe('odds', () => {
