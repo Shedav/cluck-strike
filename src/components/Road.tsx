@@ -6,6 +6,7 @@ import { isWin } from '../game/round'
 import { useGame } from '../game/store'
 import { useT } from '../i18n'
 import { useSettings } from '../settings'
+import { playSound } from '../sound'
 import { Coin } from './Coin'
 import styles from './Road.module.css'
 import { centreOf, HOP_MS, LANE_PX, RESULT_MS, SPRITES, STEP_MS, THROW_MS } from './timing'
@@ -41,6 +42,11 @@ export function Road() {
     })
   }
   const move = shown.move
+
+  // A reload never restores a finished Round, so this fires only for a Cash Out just made.
+  useEffect(() => {
+    if (round.phase === 'cashedOut') playSound('cashOut')
+  }, [round.phase, round.nonce])
 
   useEffect(() => {
     cells.current[lane]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })

@@ -13,6 +13,8 @@ export function TopBar() {
   const balanceCents = useGame((s) => s.balanceCents)
   const language = useSettings((s) => s.language)
   const setLanguage = useSettings((s) => s.setLanguage)
+  const soundOn = useSettings((s) => s.soundOn)
+  const setSoundOn = useSettings((s) => s.setSoundOn)
   const t = useT()
   const [dialog, setDialog] = useState<'rules' | 'settings' | null>(null)
 
@@ -34,6 +36,14 @@ export function TopBar() {
         <FairnessButton />
         <button className={styles.pill} onClick={() => setDialog('rules')}>
           {t('rules')}
+        </button>
+        <button
+          className={styles.pill}
+          onClick={() => setSoundOn(!soundOn)}
+          aria-label={t('sound')}
+          aria-pressed={soundOn}
+        >
+          {soundOn ? '🔊' : '🔇'}
         </button>
         <button
           className={styles.pill}

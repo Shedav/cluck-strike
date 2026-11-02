@@ -6,6 +6,7 @@ const en = {
   fairness: 'Fairness',
   rules: 'Rules',
   settings: 'Settings',
+  sound: 'Sound',
   language: 'Language',
   close: 'Close',
 
@@ -103,6 +104,7 @@ const ru: Record<MessageKey, string> = {
   fairness: 'Честность',
   rules: 'Правила',
   settings: 'Настройки',
+  sound: 'Звук',
   language: 'Язык',
   close: 'Закрыть',
 
