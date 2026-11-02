@@ -49,3 +49,25 @@ test('a Hit on the first Step loses the Bet', async ({ page }) => {
   await expect(page.getByTestId('balance')).toHaveText('990.00')
   await expect(page.getByRole('button', { name: 'Play' })).toBeEnabled()
 })
+
+test('a full Easy run crosses all 24 Lanes before the Finish', async ({ page }) => {
+  test.setTimeout(60_000)
+  await rigSeeds(page, (lane) => lane === null)
+  await placeBet(page, '10')
+  const chickenOn = (lane: number) => page.locator(`[data-lane="${lane}"] img[alt="Chicken"]`)
+
+  await page.getByRole('button', { name: 'Play' }).click()
+  await expect(chickenOn(1)).toBeVisible()
+  for (let lane = 2; lane <= 24; lane++) {
+    await page.getByRole('button', { name: 'GO' }).click()
+    await expect(chickenOn(lane)).toBeVisible()
+  }
+
+  // The chicken stands on the last Lane, then the Finish is celebrated and it returns to the start.
+  const popup = page.getByTestId('win-popup')
+  await expect(popup).toContainText('Finish!')
+  await expect(popup).toContainText('19.44x')
+  await expect(popup).toContainText('194.40')
+  await expect(page.getByTestId('balance')).toHaveText('1,184.40')
+  await expect(chickenOn(0)).toBeVisible()
+})

@@ -12,6 +12,7 @@ import {
   centreOf,
   HOP_MS,
   LANE_PX,
+  LANDED_PAUSE_MS,
   RESULT_MS,
   ROAST_MS,
   SPRITES,
@@ -29,9 +30,13 @@ export function Road() {
   const cells = useRef<(HTMLDivElement | null)[]>([])
   // The burn plays after the throw and the hop, so the Hit result stays up a bit longer.
   const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS)
+  // A Finish or Max Win comes from a Step: let the chicken land on the Lane first, then celebrate.
+  const stepWin = round.phase === 'finished' || round.phase === 'maxWin'
+  const landed = useAfterDelay(stepWin, round.nonce, STEP_MS + LANDED_PAUSE_MS)
+  const celebrate = round.phase === 'cashedOut' || landed
   // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
   // fire stays on the Lane for a moment first.
-  const lane = isWin(round.phase) || burnt ? 0 : round.lane
+  const lane = celebrate || burnt ? 0 : round.lane
   const hitNow = round.phase === 'hit' && !burnt
 
   // How the chicken got to `lane`: a Step forward (hop over from the previous cell) or a reset (fade
@@ -48,15 +53,17 @@ export function Road() {
   }
   const move = shown.move
 
-  // A reload never restores a finished Round, so this fires only for a Cash Out just made.
+  // A reload never restores a finished Round, so these fire only for a win just made.
   useEffect(() => {
     if (round.phase === 'cashedOut') playSound('cashOut')
-    if (round.phase === 'finished' || round.phase === 'maxWin') playSound('fanfare')
   }, [round.phase, round.nonce])
+  useEffect(() => {
+    if (landed) playSound('fanfare')
+  }, [landed])
 
   // Step sounds follow the animation: the throw now, the landing when the grenade comes down, and
   // on a Hit the fire burst when the chicken lands in the flames.
-  const safeStep = move.kind === 'step' && round.phase === 'playing'
+  const safeStep = move.kind === 'step' && (round.phase === 'playing' || stepWin)
   const hitStep = move.kind === 'step' && round.phase === 'hit'
   useEffect(() => {
     if (move.kind !== 'step') return
@@ -92,7 +99,7 @@ export function Road() {
           animate={hitNow ? { x: [0, -8, 8, -6, 6, 0] } : { x: 0 }}
           transition={{ duration: 0.4, delay: STEP_MS / 1000 }}
         >
-          <div className={styles.start} ref={(el) => void (cells.current[0] = el)}>
+          <div className={styles.start} data-lane={0} ref={(el) => void (cells.current[0] = el)}>
             <div className={styles.ground}>{chickenIn(0)}</div>
           </div>
           {MULTIPLIERS[round.difficulty].map((multiplier, i) => {
@@ -102,12 +109,13 @@ export function Road() {
               <div
                 key={n}
                 className={`${styles.lane} ${styles[state]} ${capLane && n > capLane ? styles.beyondMaxWin : ''}`}
+                data-lane={n}
                 ref={(el) => void (cells.current[n] = el)}
               >
                 <Badge multiplier={multiplier} />
                 <div className={styles.ground}>
                   {state === 'ahead' && <img className={styles.fire} src={SPRITES.fire} alt="" />}
-                  {n === lane && round.phase === 'playing' && (
+                  {n === lane && (round.phase === 'playing' || stepWin) && (
                     <Fragment key={`step-${round.nonce}-${n}`}>
                       <DousedFire />
                       <Grenade miss={false} />
@@ -134,11 +142,11 @@ export function Road() {
               animate={
                 round.phase === 'finished' ? { scale: [1, 1.3, 1.15], rotate: [0, -8, 8, 0] } : {}
               }
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, delay: STEP_MS / 1000 }}
             />
           </div>
         </motion.div>
-        <WinPopup />
+        <WinPopup show={celebrate} />
       </div>
     </MotionConfig>
   )
@@ -292,12 +300,12 @@ function useAfterDelay(active: boolean, nonce: number | null, ms = RESULT_MS) {
 }
 
 /** Shows the Multiplier and payout of a won Round for a moment, then hides. */
-function WinPopup() {
+function WinPopup({ show }: { show: boolean }) {
   const round = useGame((s) => s.round)
-  const hidden = useAfterDelay(isWin(round.phase), round.nonce)
+  const hidden = useAfterDelay(show, round.nonce)
 
   const t = useT()
-  if (!isWin(round.phase) || hidden) return null
+  if (!show || !isWin(round.phase) || hidden) return null
   const title = t(
     ({ cashedOut: 'youWin', finished: 'finish', maxWin: 'maxWinReached' } as const)[round.phase],
   )

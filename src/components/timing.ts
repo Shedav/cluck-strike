@@ -18,6 +18,9 @@ export const LANE_PX = 140
 export const centreOf = (cell: number) =>
   cell === 0 ? START_PX / 2 : START_PX + (cell - 1) * LANE_PX + LANE_PX / 2
 
+/** After the last Step of a Finish or Max Win, how long the chicken stands there before the celebration. */
+export const LANDED_PAUSE_MS = 400
+
 /** How long a Round's result stays on the scene before the chicken returns to the start. */
 export const RESULT_MS = 2000
 
