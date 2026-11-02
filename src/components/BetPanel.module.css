@@ -1,0 +1,112 @@
+.panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(var(--panel-from), var(--panel-to));
+}
+
+.bet {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.inputBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.input {
+  width: 120px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.inputBox:focus-within {
+  outline: 1.5px solid var(--accent);
+}
+
+.inputBox:has([aria-invalid='true']) {
+  outline: 1.5px solid var(--hit);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.go,
+.cashOut {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    opacity var(--transition);
+}
+
+.go {
+  min-width: 140px;
+  justify-content: center;
+  background: var(--accent);
+}
+
+.go:hover:not(:disabled) {
+  background: var(--accent-light);
+}
+
+.cashOut {
+  background: var(--coin);
+  color: #1a1100;
+}
+
+.go:disabled,
+.cashOut:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.go:focus-visible,
+.cashOut:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.status {
+  flex-basis: 100%;
+  margin: 0;
+  min-height: 1.4em;
+  font-weight: 600;
+}
+
+.won {
+  color: var(--win);
+}
+
+.lost {
+  color: var(--hit);
+}

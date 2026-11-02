@@ -1,0 +1,63 @@
+.road {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(var(--panel-from), var(--panel-to));
+  min-height: 300px;
+}
+
+.start,
+.lane {
+  flex: 0 0 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 48px;
+}
+
+.start {
+  flex-basis: 120px;
+  justify-content: flex-end;
+  background: var(--surface);
+}
+
+.lane + .lane {
+  border-left: 2px dashed rgb(255 255 255 / 0.12);
+}
+
+.badge {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--surface-raised);
+  color: var(--text-muted);
+  font-weight: 600;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition);
+}
+
+.passed .badge {
+  border-color: var(--win);
+  color: var(--win);
+}
+
+.hit {
+  background: rgb(237 68 56 / 0.12);
+}
+
+.hit .badge {
+  border-color: var(--hit);
+  color: var(--hit);
+}
+
+.chicken {
+  font-size: 56px;
+  line-height: 1;
+}
