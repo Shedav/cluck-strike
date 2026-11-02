@@ -7,6 +7,7 @@ import { useT } from '@/shared/i18n'
 import { formatCoins, formatMultiplier, playSound } from '@/shared/lib'
 import { Coin, PixelSprite } from '@/shared/ui'
 import { centreOf, LANE_PX, SPRITES } from '../config'
+import { BURN } from '../pixel/burn'
 import { CHICKEN } from '../pixel/chicken'
 import styles from './Road.module.css'
 
@@ -116,8 +117,7 @@ export function Road() {
                   {state === 'hit' && (
                     <>
                       <Grenade miss />
-                      <FlareUp />
-                      <RoastedChicken />
+                      <Burn />
                     </>
                   )}
                   {chickenIn(n)}
@@ -150,7 +150,7 @@ const FADE = { duration: 0.25 }
 /**
  * The chicken is drawn in its own cell. On a Step it starts where the previous cell was and hops
  * over once its grenade has landed; on a reset (win or Hit) the old one fades out and this one
- * fades in at the start. A burning chicken fades out as the roasted one appears.
+ * fades in at the start. A burning chicken vanishes as it lands, where the burn takes over.
  */
 function Chicken({ move, burning }: { move: Move; burning: boolean }) {
   const t = useT()
@@ -193,7 +193,7 @@ function Chicken({ move, burning }: { move: Move; burning: boolean }) {
         x: hop,
         y: hop,
         opacity: burning
-          ? { delay: (STEP_MS + ROAST_MS) / 1000, duration: 0.2 }
+          ? { delay: STEP_MS / 1000, duration: 0 }
           : move.kind === 'reset'
             ? { ...FADE, delay: FADE.duration }
             : FADE,
@@ -213,18 +213,28 @@ function Chicken({ move, burning }: { move: Move; burning: boolean }) {
 
 const POSE_MS = { idle: 900, throw: THROW_MS, hop: HOP_MS }
 
-function RoastedChicken() {
+/** A Hit: once the chicken lands in the fire, it burns down to a pile of bones that stays there. */
+function Burn() {
+  const t = useT()
+  const [lit, setLit] = useState(false)
+  useEffect(() => {
+    const timer = setTimeout(() => setLit(true), STEP_MS)
+    return () => clearTimeout(timer)
+  }, [])
+  if (!lit) return null
   return (
-    <motion.img
-      className={styles.roasted}
-      src={SPRITES.chickenRoasted}
-      alt={useT()('roastedChicken')}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: (STEP_MS + ROAST_MS) / 1000, duration: 0.2 }}
+    <PixelSprite
+      className={styles.burn}
+      frames={BURN}
+      ms={BURN_MS}
+      width={96}
+      alt={t('roastedChicken')}
     />
   )
 }
+
+/** The whole burn; with `STEP_MS` it ends before `RESULT_MS` resets the scene. */
+const BURN_MS = 1500
 
 /** The smoke grenade arcs from the chicken's Lane: onto this Lane's fire, or past it on a Hit. */
 function Grenade({ miss }: { miss: boolean }) {
@@ -275,20 +285,6 @@ function SmokePuff() {
       initial={{ opacity: 0, scale: 0.3 }}
       animate={{ opacity: [0, 1, 1, 0], scale: [0.3, 1.4, 1.6, 1.9], y: [0, -10, -20, -40] }}
       transition={{ duration: 1.2, times: [0, 0.2, 0.6, 1], delay: THROW_MS / 1000 }}
-    />
-  )
-}
-
-/** A Hit: once the chicken lands, the fire flares up over it, then dies down to show it roasted. */
-function FlareUp() {
-  return (
-    <motion.img
-      className={styles.flare}
-      src={SPRITES.fire}
-      alt=""
-      initial={{ scale: 0.6, opacity: 1 }}
-      animate={{ scale: [0.6, 1.8, 1.5, 1], opacity: [1, 1, 1, 0] }}
-      transition={{ duration: 1.4, times: [0, 0.25, 0.7, 1], delay: STEP_MS / 1000 }}
     />
   )
 }

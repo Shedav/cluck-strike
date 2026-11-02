@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { spriteSheet } from './pixel'
+import { overlay, spriteSheet } from './pixel'
 
 const svgOf = (url: string) => decodeURIComponent(url.replace('data:image/svg+xml,', ''))
 
@@ -23,5 +23,11 @@ describe('spriteSheet', () => {
 
   it('rejects a frame of the wrong size', () => {
     expect(() => spriteSheet([['kk'], ['k']])).toThrow('Frame 1 is not 2x1')
+  })
+})
+
+describe('overlay', () => {
+  it('draws the top frame over the base where it is not transparent', () => {
+    expect(overlay(['kk', 'ww'], ['.r', 'o.'])).toEqual(['kr', 'ow'])
   })
 })

@@ -55,12 +55,6 @@
   animation-delay: -0.45s;
 }
 
-.flare {
-  width: 96px;
-  transform-origin: bottom center;
-  z-index: 2;
-}
-
 .smoke {
   width: 110px;
   z-index: 2;
@@ -133,9 +127,8 @@
   z-index: 1;
 }
 
-.roasted {
-  width: 84px;
-  z-index: 1;
+.burn {
+  z-index: 2;
 }
 
 .badge[data-full] {

@@ -14,7 +14,7 @@ const LOWER: Frame = [
   '........................',
 ]
 
-const STAND: Frame = [
+export const STAND: Frame = [
   '........................',
   '..............kkkkk.....',
   '.............krrrrrk....',
@@ -37,7 +37,7 @@ const STAND: Frame = [
 const CROUCH: Frame = ['........................', ...STAND.slice(0, 19), ...STAND.slice(20)]
 
 /** Wing raised behind the head with the grenade in it. */
-const WIND_UP: Frame = [
+export const WIND_UP: Frame = [
   '...kkkk.................',
   '...kmmk.......kkkkk.....',
   '..kssssk.....krrrrrk....',
@@ -57,7 +57,7 @@ const WIND_UP: Frame = [
 ]
 
 /** Wing flung forward: the grenade has just left it. */
-const RELEASE: Frame = [
+export const RELEASE: Frame = [
   ...STAND.slice(0, 10),
   '.kwwwwwwwwwwwwwwwwwkk...',
   '.kwwwwwwwwwwwwggggggkk..',
@@ -68,7 +68,7 @@ const RELEASE: Frame = [
 ]
 
 /** In the air: wings up, legs tucked. */
-const AIRBORNE: Frame = [
+export const AIRBORNE: Frame = [
   // The raised wing without the grenade.
   ...WIND_UP.slice(0, 5).map((row) => '.'.repeat(8) + row.slice(8)),
   ...WIND_UP.slice(5, 19),

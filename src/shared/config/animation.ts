@@ -6,7 +6,7 @@ export const THROW_MS = 450
 /** Then the chicken hops onto that Lane. */
 export const HOP_MS = 450
 
-/** On a Hit, how long after the chicken lands the flare peaks and the roasted chicken appears. */
+/** On a Hit, how long after the chicken lands in the fire it screams (the burn's flailing frames). */
 export const ROAST_MS = 350
 
 /** A whole Step animation; buttons stay locked meanwhile. Road.module.css repeats these delays. */

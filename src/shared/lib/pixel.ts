@@ -12,7 +12,15 @@ export const PALETTE: Record<string, string> = {
   s: '#cbd5e1', // grenade body
   v: '#7d2efa', // grenade band, cs2skin's violet
   m: '#6b7280', // grenade cap
+  y: '#fde047', // flame core
+  b: '#e7e5e4', // bone
+  h: '#4a3226', // charred feathers
+  c: '#2b1d16', // charred shade
 }
+
+/** Draws `top` over `base`; the '.' pixels of `top` let `base` show through. */
+export const overlay = (base: Frame, top: Frame): Frame =>
+  base.map((row, y) => [...row].map((pixel, x) => (top[y][x] === '.' ? pixel : top[y][x])).join(''))
 
 /**
  * Lays frames side by side into one SVG sprite sheet (a data URL). Each run of same-coloured
