@@ -41,7 +41,76 @@ function tone(ctx: AudioContext, frequency: number, at: number, length: number, 
   osc.stop(start + length + 0.02)
 }
 
+let noise: AudioBuffer | null = null
+
+/** A burst of white noise through a filter, with an attack/decay envelope. */
+function hiss(
+  ctx: AudioContext,
+  {
+    at = 0,
+    length,
+    volume,
+    filter,
+    from,
+    to,
+  }: {
+    at?: number
+    length: number
+    volume: number
+    filter: BiquadFilterType
+    from: number
+    to: number
+  },
+) {
+  if (!noise) {
+    noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate)
+    const data = noise.getChannelData(0)
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
+  }
+  const start = ctx.currentTime + at
+  const source = ctx.createBufferSource()
+  source.buffer = noise
+  const band = ctx.createBiquadFilter()
+  band.type = filter
+  band.frequency.setValueAtTime(from, start)
+  band.frequency.exponentialRampToValueAtTime(to, start + length)
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.0001, start)
+  gain.gain.exponentialRampToValueAtTime(volume, start + length * 0.2)
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + length)
+  source.connect(band).connect(gain).connect(ctx.destination)
+  source.start(start)
+  source.stop(start + length + 0.02)
+}
+
+/** A sine whose pitch slides from `from` to `to` Hz: thumps and boings. */
+function slide(ctx: AudioContext, from: number, to: number, length: number, volume: number) {
+  const start = ctx.currentTime
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+  osc.frequency.setValueAtTime(from, start)
+  osc.frequency.exponentialRampToValueAtTime(to, start + length)
+  gain.gain.setValueAtTime(volume, start)
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + length)
+  osc.connect(gain).connect(ctx.destination)
+  osc.start(start)
+  osc.stop(start + length + 0.02)
+}
+
 const EFFECTS = {
+  /** The smoke grenade flying: a rising band of noise. */
+  throw(ctx: AudioContext) {
+    hiss(ctx, { length: 0.35, volume: 0.25, filter: 'bandpass', from: 500, to: 2400 })
+  },
+  /** The grenade landing: a low puff, then the Smoke's hiss. */
+  smoke(ctx: AudioContext) {
+    slide(ctx, 160, 60, 0.18, 0.35)
+    hiss(ctx, { length: 0.8, volume: 0.18, filter: 'highpass', from: 3000, to: 1200 })
+  },
+  /** The chicken's hop: a short rising boing. */
+  hop(ctx: AudioContext) {
+    slide(ctx, 320, 640, 0.12, 0.12)
+  },
   /** Coin chime: three quick rising notes. */
   cashOut(ctx: AudioContext) {
     tone(ctx, 1318.5, 0, 0.25, 0.18) // E6

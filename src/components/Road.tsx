@@ -48,6 +48,18 @@ export function Road() {
     if (round.phase === 'cashedOut') playSound('cashOut')
   }, [round.phase, round.nonce])
 
+  // Step sounds follow the animation: the throw now, the landing when the grenade comes down.
+  const safeStep = move.kind === 'step' && round.phase === 'playing'
+  useEffect(() => {
+    if (move.kind !== 'step') return
+    playSound('throw')
+    const landing = setTimeout(() => {
+      if (safeStep) playSound('smoke')
+      playSound('hop')
+    }, THROW_MS)
+    return () => clearTimeout(landing)
+  }, [move, safeStep])
+
   useEffect(() => {
     cells.current[lane]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
   }, [lane])
