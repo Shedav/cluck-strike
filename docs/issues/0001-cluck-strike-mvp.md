@@ -211,9 +211,9 @@ These set the prior art for the codebase.
 - A real backend, accounts or authentication.
 - Real money, and Max Win cases beyond 10,000.
 - Other players' bets, a live-wins ticker, an online counter.
-- Music, autoplay, leaderboards.
+- Music, leaderboards. (Autoplay was added later as ticket 15.)
 - Valve or cs2skin logos, map names or assets.
-- Final art. The MVP uses our own flat SVG sprites; animated 8-bit art is ticket 12.
+- Final art. The MVP started with our own flat SVG sprites; ticket 12 replaced them with animated 8-bit pixel art.
 
 ## Further Notes
 

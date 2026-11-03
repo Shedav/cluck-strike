@@ -45,7 +45,7 @@ The outcome is predetermined, as described in [ADR 0001](adr/0001-predetermined-
 - The Hit Lane is derived from `HMAC-SHA256(serverSeed, clientSeed:nonce)`, mapped through the survival distribution above.
 - Each Round gets a new Server Seed, drawn one Round ahead: its SHA-256 hash is shown before Play (and before the player edits the Client Seed), and the seed itself is revealed after the Round.
 - The Client Seed is random by default and can be edited in the Fairness modal. The nonce increments every Round.
-- The Fairness modal shows the next Round's hash and nonce, the Client Seed, and for the last Round the revealed seeds with a re-check: the hash must match and the recomputed Hit Lane must agree with how the Round ended. Every row in Recent Games opens the same check.
+- The Fairness modal shows the next Round's hash and nonce, the Client Seed, and for the last Round the revealed seeds with a re-check: the hash must match and the recomputed Hit Lane must agree with how the Round ended. Every row in Recent Games opens the same check, with the same check as JavaScript for any browser console. A "Verify a Round" form recomputes any Round from entered values (Server Seed, Client Seed, nonce, Difficulty) and gives that code too (ticket 14).
 - The mock server (`shared/api`) implements an async, backend-shaped contract: `startRound`, `step` (safe / Hit / Finish / Max Win), `cashOut`, `currentRound` (to resume after a reload) and `nextRound` (the committed hash and nonce). It owns the seeds; the UI and the store never see a Server Seed before its Round ends. Swapping in a real backend means replacing this one implementation (ADR 0001, ADR 0002).
 
 ### Bet and Balance
@@ -75,17 +75,18 @@ Recent Games keeps the player's last 100 finished Rounds and shows them 10 at a 
   - **Bottom panel:** Bet controls, Difficulty tabs, then Play, which turns into GO plus Cash Out showing Bet × current Multiplier.
   - **Below the game:** Recent Games.
   - **Mobile** (below 640px): the logo and Balance share the first row with the tools below; the bottom panel stacks vertically and Difficulty becomes a dropdown; Recent Games drops the Difficulty column. No horizontal page scroll down to 360px.
-- **Animation:** DOM + Framer Motion. A Step is a throw (0.45 s) and a hop (0.45 s); safe: the grenade lands and Smoke puts the fire out; Hit: it flies past, the chicken lands in the flames, they flare up and leave a roasted chicken. Badge colours change in sync with the animation. Buttons are locked while an animation plays, which also prevents double clicks. Timings live in `shared/config`.
+- **Animation:** DOM + Framer Motion. A Step is a throw (0.45 s) and a hop (0.45 s); safe: the grenade lands and Smoke puts the fire out; Hit: it flies past, the chicken lands in the flames and burns down to a pile of bones. Badge colours change in sync with the animation. Buttons are locked while an animation plays (after a Hit, until the burn ends), which also prevents double clicks. On phones Play/GO/Cash Out sit right under the scene. Timings live in `shared/config`.
 - **Sound:** throw, Smoke, hop, Hit (fire burst, then crackling fat and the chicken's scream as it burns), Cash Out and Finish, synthesized in the browser with the Web Audio API (no audio files). Sound is on by default, toggled from the top bar, and the choice is persisted. No music.
-- **Hotkeys:** Space for Play/GO, Enter for Cash Out; ignored while typing or with a dialog open. Listed in the rules.
-- **Accessibility:** fully keyboard-operable with a visible focus outline; every Step, Hit, Cash Out, Finish and Max Win announced via one `aria-live` region; native `<dialog>` modals; `prefers-reduced-motion` respected.
+- **Hotkeys:** Space for Play/GO, Enter for Cash Out; ignored while typing or with a dialog open, and on any focused control (Play/GO/Cash Out included) the keys press that control. A mouse click doesn't leave focus on those buttons, so the hotkeys stay global for mouse players. Listed in the rules.
+- **Accessibility:** fully keyboard-operable with a visible focus outline; every Step, Hit, Cash Out, Finish and Max Win announced via one `aria-live` region, when the scene shows it; native `<dialog>` modals; `prefers-reduced-motion` respected.
 - **Art:** our own 8-bit pixel sprites drawn in code as text grids with one shared palette (`src/widgets/road/pixel/`), played frame by frame as sprite sheets: the chicken (idle, throw, hop), the burn down to a skeleton, the golden case opening, the Lane fire, Smoke and the smoke grenade. Multipliers and the win popup use the pixel font Pixelify Sans.
-  - Under review (ticket 12): frame-by-frame 8-bit pixel animation in the style of cs2skin.com/crash — chicken idle, throw and hop; burning down to a skeleton; the golden case opening; pixel fire and Smoke; a pixel font for Multipliers. Whether the frames are drawn in code or AI-generated is not decided yet.
 - **i18n:** a small typed dictionary for `en` and `ru`. The default language is English; the player can switch to Russian and the choice is persisted.
 
 ## Out of scope
 
-Backend, accounts, other players' bets, live-wins ticker, online counter, music, autoplay.
+Backend, accounts, other players' bets, live-wins ticker, online counter, music.
+
+Added after the MVP: Autoplay (ticket 15) — a Round count, the Lane to cash out on, and Stop, which lets the current Round finish.
 
 ## Tech
 

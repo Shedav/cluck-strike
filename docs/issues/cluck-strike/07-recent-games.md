@@ -9,7 +9,7 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 **Status:** done
 
 - [x] Each finished Round (Cash Out, Finish, Max Win, Hit) is added to Recent Games with its fairness data
-- [x] Capped at the 10 most recent Rounds
+- [x] Capped at the 10 most recent Rounds (later raised to 100, shown 10 at a time with "Load more", see docs/spec.md)
 - [x] Win rows in green `#15d77c`, Hit rows in red `#ed4438`; layout in the style of cs2skin's Recent Games table
 - [x] Row click (and keyboard activation) opens Fairness for that Round
 - [x] Persisted; restored after reload
