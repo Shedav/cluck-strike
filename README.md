@@ -1,6 +1,6 @@
 # Cluck Strike
 
-A browser game of chance in the spirit of Chicken Road, made to sit among the games on cs2skin.com.
+A browser game of chance in the spirit of Chicken Road
 
 **Play it:** https://cluck-strike.vercel.app/
 
@@ -71,7 +71,7 @@ The playable game took about **4–4.5 hours** of active work (time away from th
 
 Most of the time went into **designing the game before writing code**: how the outcome is fixed, the odds, fairness and the theme. Second came **sound and animation timing**: every effect is synced to the throw, the hop and the burn.
 
-After that, about **3 more hours** went into extras: the 8-bit art (≈ 45 m), the Fairness verifier and Autoplay (≈ 30 m), fixes from testing on a real iPhone, a code review with its fixes, and more tests.
+After that, went into extras: the 8-bit art (≈ 45 m), the Fairness verifier and Autoplay (≈ 30 m), fixes from testing on a real iPhone, a code review with its fixes, and more tests.
 
 The commit history spans two days because of the breaks between sessions.
 
