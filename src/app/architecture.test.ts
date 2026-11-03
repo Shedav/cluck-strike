@@ -46,3 +46,11 @@ test('every file lives in a Feature-Sliced Design layer', () => {
 test('imports respect layer order and slice public APIs', () => {
   expect(sources.flatMap(violations)).toEqual([])
 })
+
+test('inline SVG icons live in shared/ui/icons', () => {
+  const icons = join(SRC, 'shared/ui/icons')
+  const stray = sources.filter(
+    (f) => f.endsWith('.tsx') && !f.startsWith(icons) && readFileSync(f, 'utf8').includes('<svg'),
+  )
+  expect(stray.map((f) => relative(SRC, f))).toEqual([])
+})
