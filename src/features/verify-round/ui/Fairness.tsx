@@ -188,8 +188,11 @@ function VerifyForm() {
   )
 }
 
-/** The seeds of one Round and, once it is over, an independent re-check of its result. */
-export function RoundProof({ round }: { round: Round }) {
+/**
+ * The seeds of one Round and, once it is over, an independent re-check of its result; `withCode`
+ * adds the same check as code for the browser console.
+ */
+export function RoundProof({ round, withCode = false }: { round: Round; withCode?: boolean }) {
   const [check, setCheck] = useState<{ hitLane: number | null; hashOk: boolean } | null>(null)
   const { serverSeed, clientSeed, nonce, serverSeedHash, difficulty } = round
   const t = useT()
@@ -225,6 +228,16 @@ export function RoundProof({ round }: { round: Round }) {
             {t(check.hashOk && matches(round, check.hitLane) ? 'verified' : 'mismatch')}
           </strong>
         </div>
+      )}
+      {withCode && serverSeed !== null && clientSeed !== null && nonce !== null && (
+        <>
+          <Field
+            label={t('consoleCode')}
+            value={verifierSnippet(serverSeed, clientSeed, nonce, difficulty)}
+            code
+          />
+          <p className={styles.hint}>{t('consoleHint')}</p>
+        </>
       )}
     </>
   )

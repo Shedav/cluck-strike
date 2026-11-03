@@ -21,4 +21,6 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 - The long code made the modal overflow sideways: the value row is a grid item with `min-width: auto`; it now has `min-width: 0` and the code scrolls inside.
 - Checked in headless Chrome on desktop and a 360 px phone after a Round: the form's result matches the Last Round's verdict.
 
-**Time spent:** ~10 min (00:25–00:32, 2026-11-03), plus ~5 min looking at cs2skin.
+- Follow-up: Recent Games' "Round fairness" modal shows the same console code for its Round (`RoundProof withCode`); checked by running the shown code in the page, which prints the modal's recomputed result.
+
+**Time spent:** ~10 min (00:25–00:32, 2026-11-03), plus ~5 min looking at cs2skin and ~3 min for the Recent Games follow-up (09:46–09:49).

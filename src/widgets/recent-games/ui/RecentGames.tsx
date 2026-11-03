@@ -77,7 +77,7 @@ export function RecentGames() {
         </button>
       )}
       <Dialog open={selected !== null} onClose={() => setSelected(null)} title={t('roundFairness')}>
-        {selected && <RoundProof round={selected} />}
+        {selected && <RoundProof round={selected} withCode />}
       </Dialog>
     </section>
   )

@@ -89,6 +89,8 @@ const en = {
   verifyHint:
     "Enter any Round's values to recompute its result here, or copy the code and run it in any browser console (F12) without trusting this page.",
   consoleCode: 'Code for the browser console',
+  consoleHint:
+    'Paste it into any browser console (F12) to recompute this Round without trusting this page.',
 
   rulesHowTo: 'How to play',
   rulesStep1:
@@ -202,6 +204,8 @@ const ru: Record<MessageKey, string> = {
   verifyHint:
     'Введите значения любого раунда, чтобы пересчитать результат здесь, или скопируйте код и запустите его в консоли любого браузера (F12), не доверяя этой странице.',
   consoleCode: 'Код для консоли браузера',
+  consoleHint:
+    'Вставьте его в консоль любого браузера (F12), чтобы пересчитать этот раунд, не доверяя этой странице.',
 
   rulesHowTo: 'Как играть',
   rulesStep1:
