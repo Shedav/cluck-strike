@@ -1,1 +1,2 @@
-export { FairnessButton, RoundProof } from './ui/Fairness'
+export { FairnessButton } from './ui/Fairness'
+export { RoundProof } from './ui/RoundProof'
