@@ -23,7 +23,7 @@ Parent: [0001 Cluck Strike MVP](../0001-cluck-strike-mvp.md)
 **Notes:**
 
 - Phones (< 640px): the logo and Balance share the first row with the tools below; the Bet panel stacks at full width; Difficulty is a native `<select>` (the tabs stay on wider screens). Lane widths are unchanged, so about 1.5–2 Lanes are visible and the camera keeps the chicken's Lane in view.
-- Hotkeys are ignored while a dialog is open or another control (an input, MIN, a chip…) has focus, so Space and Enter keep their usual meaning there; on the Play/GO/Cash Out buttons themselves the hotkey replaces the native click to avoid a double action.
+- Hotkeys are ignored while a dialog is open or another control (an input, MIN, a chip…) has focus, so Space and Enter keep their usual meaning there; on the Play/GO/Cash Out buttons themselves the hotkey replaces the native click to avoid a double action. Changed after the code review on 2026-11-03: that made Enter on a focused GO cash out, so now every focused control (Play/GO/Cash Out included) gets its native key behaviour, and a mouse click drops focus from those buttons so mouse players keep the global hotkeys.
 - One live region announces every Step, Hit, Cash Out, Finish and Max Win in the current language; the visual win popup is hidden from screen readers to avoid saying it twice.
 - A global `:focus-visible` outline covers controls without their own focus style; dialogs are native `<dialog>` (focus trap, Escape).
 - Playwright now runs every test on desktop and on a 360px phone profile; test timeout raised to 60 s because animations run in real time.
