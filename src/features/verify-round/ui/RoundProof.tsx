@@ -1,9 +1,9 @@
-import { isWin, type Round } from '@/entities/round'
+import type { Round } from '@/entities/round'
 import { verifierSnippet } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
 import styles from './Fairness.module.css'
 import { Field } from './Field'
-import { recomputedText, useVerification } from './verification'
+import { matchesOutcome, recomputedText, useVerification } from './verification'
 
 /**
  * The seeds of one Round and, once it is over, an independent re-check of its result; `withCode`
@@ -12,7 +12,7 @@ import { recomputedText, useVerification } from './verification'
 export function RoundProof({ round, withCode = false }: { round: Round; withCode?: boolean }) {
   const { serverSeed, clientSeed, nonce, serverSeedHash, difficulty } = round
   const check = useVerification(serverSeed, clientSeed, nonce, difficulty)
-  const ok = check !== null && check.hash === serverSeedHash && matches(round, check.hitLane)
+  const ok = check !== null && check.hash === serverSeedHash && matchesOutcome(round, check.hitLane)
   const t = useT()
 
   return (
@@ -41,14 +41,6 @@ export function RoundProof({ round, withCode = false }: { round: Round; withCode
       )}
     </>
   )
-}
-
-/** Whether a recomputed Hit Lane agrees with how the Round actually ended. */
-function matches(round: Round, hitLane: number | null) {
-  if (round.phase === 'hit') return hitLane === round.lane
-  if (round.phase === 'finished') return hitLane === null
-  // A Cash Out (or Max Win) stopped before the Hit Lane, if there was one.
-  return isWin(round.phase) && (hitLane === null || hitLane > round.lane)
 }
 
 function describe(round: Round, t: ReturnType<typeof useT>) {

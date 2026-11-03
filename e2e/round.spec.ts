@@ -1,25 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { verifyRound } from '../src/shared/game-rules/fairness.ts'
-
-/**
- * Makes every seed in the page predictable: crypto.getRandomValues fills with one byte, so both the
- * Client Seed and the Server Seed become that byte repeated. Picks a byte whose first Round matches.
- */
-async function rigSeeds(page: Page, match: (hitLane: number | null) => boolean) {
-  for (let byte = 0; byte < 256; byte++) {
-    const seed = byte.toString(16).padStart(2, '0').repeat(32)
-    if (match(await verifyRound(seed, seed, 0, 'easy'))) {
-      await page.addInitScript((b) => {
-        crypto.getRandomValues = <T extends ArrayBufferView | null>(array: T) => {
-          if (array instanceof Uint8Array) array.fill(b)
-          return array
-        }
-      }, byte)
-      return
-    }
-  }
-  throw new Error('no byte gives the wanted Round')
-}
+import { rigSeeds } from './rig'
 
 async function placeBet(page: Page, amount: string) {
   await page.goto('/')
@@ -27,7 +7,7 @@ async function placeBet(page: Page, amount: string) {
 }
 
 test('Play → GO → Cash Out increases the Balance', async ({ page }) => {
-  await rigSeeds(page, (lane) => lane === null || lane > 2)
+  await rigSeeds(page, ([lane]) => lane === null || lane > 2)
   await placeBet(page, '10')
   await page.getByRole('button', { name: 'Play', exact: true }).click()
   await page.getByRole('button', { name: 'GO' }).click()
@@ -41,7 +21,7 @@ test('Play → GO → Cash Out increases the Balance', async ({ page }) => {
 })
 
 test('a Hit on the first Step loses the Bet', async ({ page }) => {
-  await rigSeeds(page, (lane) => lane === 1)
+  await rigSeeds(page, ([lane]) => lane === 1)
   await placeBet(page, '10')
   await page.getByRole('button', { name: 'Play', exact: true }).click()
 
@@ -51,7 +31,7 @@ test('a Hit on the first Step loses the Bet', async ({ page }) => {
 })
 
 test('a full Easy run crosses all 24 Lanes before the Finish', async ({ page }) => {
-  await rigSeeds(page, (lane) => lane === null)
+  await rigSeeds(page, ([lane]) => lane === null)
   await placeBet(page, '10')
   const chickenOn = (lane: number) => page.locator(`[data-lane="${lane}"] img[alt="Chicken"]`)
 
@@ -73,7 +53,7 @@ test('a full Easy run crosses all 24 Lanes before the Finish', async ({ page }) 
 
 test('Space plays and steps, Enter cashes out', async ({ page, isMobile }) => {
   test.skip(isMobile, 'no hardware keyboard on phones')
-  await rigSeeds(page, (lane) => lane === null || lane > 2)
+  await rigSeeds(page, ([lane]) => lane === null || lane > 2)
   await placeBet(page, '10')
   await page.locator('body').click({ position: { x: 5, y: 5 } }) // leave the Bet input
 
@@ -99,12 +79,12 @@ test('the page fits a phone screen without sideways scrolling', async ({ page, i
 test('a reload mid-Round shows the chicken on its Lane without replaying the Step', async ({
   page,
 }) => {
-  await rigSeeds(page, (lane) => lane === null || lane > 2)
+  await rigSeeds(page, ([lane]) => lane === null || lane > 2)
   await placeBet(page, '10')
   await page.getByRole('button', { name: 'Play', exact: true }).click()
   await expect(page.getByRole('button', { name: 'GO' })).toBeEnabled()
 
   await page.reload()
   await expect(page.locator('[data-lane="1"] img[alt="Chicken"]')).toBeVisible()
-  await expect(page.locator('img[class*="grenade"], img[class*="smoke"]')).toHaveCount(0)
+  await expect(page.locator('[class*="grenade"], [class*="smoke"]')).toHaveCount(0)
 })

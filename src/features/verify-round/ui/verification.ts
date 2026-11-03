@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isWin, type Round } from '@/entities/round'
 import { sha256, verifyRound, type Difficulty } from '@/shared/game-rules'
 import type { useT } from '@/shared/i18n'
 
@@ -37,3 +38,11 @@ export function useVerification(
 /** "Recomputed: Hit on Lane 4" or "Recomputed: no Hit on any Lane". */
 export const recomputedText = (t: ReturnType<typeof useT>, hitLane: number | null) =>
   t('recomputed', { result: hitLane === null ? t('noHit') : t('hitOnLane', { lane: hitLane }) })
+
+/** Whether a recomputed Hit Lane agrees with how the Round actually ended. */
+export function matchesOutcome(round: Round, hitLane: number | null) {
+  if (round.phase === 'hit') return hitLane === round.lane
+  if (round.phase === 'finished') return hitLane === null
+  // A Cash Out (or Max Win) stopped before the Hit Lane, if there was one.
+  return isWin(round.phase) && (hitLane === null || hitLane > round.lane)
+}

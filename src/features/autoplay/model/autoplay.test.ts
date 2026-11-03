@@ -1,31 +1,38 @@
 import { describe, expect, test } from 'vitest'
 import { createGameStore } from '@/entities/round'
 import { createMockServer } from '@/shared/api'
-import { payoutCents, verifyRound } from '@/shared/game-rules'
+import { CASE_MS, LANDED_PAUSE_MS, RESULT_MS, STEP_MS } from '@/shared/config'
+import { payoutCents, verifyRound, type Difficulty } from '@/shared/game-rules'
 import { createAutoplay } from './autoplay'
 
 const CLIENT_SEED = 'autoplay-client'
 
 /** A Server Seed (reused every Round) whose first Rounds have the wanted Hit Lanes. */
-async function seedWhere(match: (hitLanes: (number | null)[]) => boolean, rounds: number) {
-  for (let i = 0; i < 10_000; i++) {
+async function seedWhere(
+  match: (hitLanes: (number | null)[]) => boolean,
+  rounds: number,
+  difficulty: Difficulty = 'easy',
+) {
+  for (let i = 0; i < 20_000; i++) {
     const seed = `server-${i}`
     const lanes = await Promise.all(
-      Array.from({ length: rounds }, (_, nonce) => verifyRound(seed, CLIENT_SEED, nonce, 'easy')),
+      Array.from({ length: rounds }, (_, nonce) =>
+        verifyRound(seed, CLIENT_SEED, nonce, difficulty),
+      ),
     )
     if (match(lanes)) return seed
   }
   throw new Error('no seed found')
 }
 
-async function setup(serverSeed: string, balanceCents?: number) {
+async function setup(serverSeed: string, balanceCents?: number, waits: number[] = []) {
   const game = createGameStore({
     server: createMockServer({ newSeed: () => serverSeed }),
     clientSeed: CLIENT_SEED,
     balanceCents,
   })
   await game.getState().resume()
-  const autoplay = createAutoplay(game, () => Promise.resolve())
+  const autoplay = createAutoplay(game, (ms) => (waits.push(ms), Promise.resolve()))
   const finished = () =>
     new Promise<void>((resolve) => {
       const unsubscribe = autoplay.subscribe((s) => s.running || (unsubscribe(), resolve()))
@@ -73,5 +80,33 @@ describe('autoplay', () => {
 
     expect(game.getState().recentGames.map((r) => r.phase)).toEqual(['hit', 'hit'])
     expect(game.getState().balanceCents).toBe(0)
+  })
+
+  test('waits for each Step and for the result to show before the next Round', async () => {
+    const seed = await seedWhere((lanes) => lanes.every((l) => l === null || l > 2), 2)
+    const waits: number[] = []
+    const { autoplay, finished } = await setup(seed, undefined, waits)
+
+    autoplay.getState().start({ rounds: 2, cashOutLane: 2 })
+    await finished()
+
+    // Play, GO (a Step each), the result, then the second Round; nothing after the last one.
+    expect(waits).toEqual([STEP_MS, STEP_MS, RESULT_MS, STEP_MS, STEP_MS])
+  })
+
+  test('after a Max Win it also waits out the pause before the celebration', async () => {
+    // Hardcore with a 150.00 Bet reaches Max Win on Lane 8 (140.24x), long before the Cash Out Lane.
+    const seed = await seedWhere(([lane]) => lane === null || lane > 8, 1, 'hardcore')
+    const waits: number[] = []
+    const { game, autoplay, finished } = await setup(seed, undefined, waits)
+    game.getState().setDifficulty('hardcore')
+    game.getState().setBet(15_000)
+
+    autoplay.getState().start({ rounds: 2, cashOutLane: 15 })
+    await finished()
+
+    expect(game.getState().recentGames.at(-1)).toMatchObject({ phase: 'maxWin', lane: 8 })
+    expect(waits).toContain(RESULT_MS + LANDED_PAUSE_MS)
+    expect(waits).not.toContain(RESULT_MS + CASE_MS)
   })
 })
