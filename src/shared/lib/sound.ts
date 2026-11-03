@@ -38,15 +38,15 @@ const SILENT_WAV =
 let mediaSession: HTMLAudioElement | null = null
 
 /**
- * iOS browsers without `navigator.audioSession` (Chrome, Firefox: WKWebView) mute Web Audio with the
- * silent switch. A looping silent <audio> element, started in a gesture, moves the page to the
- * media "playback" session so the effects are heard; it is not needed (or started) elsewhere.
+ * iOS mutes Web Audio with the silent switch. Safari honours `navigator.audioSession`, but Chrome
+ * and Firefox (WKWebView) may expose it and ignore it, so on every iOS browser a looping silent
+ * <audio> element, started in a gesture, moves the page to the media "playback" session.
  */
 function keepPlaybackSession() {
   const ios =
     /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform))
-  if (!ios || 'audioSession' in navigator) return
+  if (!ios) return
   if (!mediaSession) {
     mediaSession = new Audio(SILENT_WAV)
     mediaSession.loop = true
