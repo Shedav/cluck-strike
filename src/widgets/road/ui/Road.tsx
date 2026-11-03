@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, MotionConfig } from 'motion/react'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { isWin, useGame } from '@/entities/round'
 import {
   BURN_MS,
@@ -15,7 +15,7 @@ import { maxWinLane, MULTIPLIERS } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
 import { formatCoins, formatMultiplier, playSound } from '@/shared/lib'
 import { Coin, PixelSprite } from '@/shared/ui'
-import { centreOf, LANE_PX } from '../config'
+import { centreOf, LANE_PX, START_PX } from '../config'
 import { BURN } from '../pixel/burn'
 import { GOLDEN_CASE } from '../pixel/case'
 import { FIRE, GRENADE, SMOKE } from '../pixel/props'
@@ -101,7 +101,7 @@ export function Road() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className={`${styles.scene} surface`}>
+      <div className={`${styles.scene} surface`} style={SCENE_VARS}>
         <motion.div
           className={styles.road}
           animate={hitNow ? { x: [0, -8, 8, -6, 6, 0] } : { x: 0 }}
@@ -166,6 +166,14 @@ export function Road() {
     </MotionConfig>
   )
 }
+
+/** Timings and cell widths for Road.module.css, from the same constants the code uses. */
+const SCENE_VARS = {
+  '--throw-ms': `${THROW_MS}ms`,
+  '--step-ms': `${STEP_MS}ms`,
+  '--lane-px': `${LANE_PX}px`,
+  '--start-px': `${START_PX}px`,
+} as CSSProperties
 
 type Move = { kind: 'step'; distance: number } | { kind: 'reset' } | { kind: 'stay' }
 

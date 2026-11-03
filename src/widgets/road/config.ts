@@ -1,4 +1,4 @@
-// Cell widths; Road.module.css sets the same flex-basis values.
+// Cell widths; the scene passes them to Road.module.css as --lane-px and --start-px.
 export const START_PX = 120
 export const LANE_PX = 140
 

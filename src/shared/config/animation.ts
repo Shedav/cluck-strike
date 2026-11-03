@@ -9,7 +9,7 @@ export const HOP_MS = 450
 /** On a Hit, how long after the chicken lands in the fire it screams (the burn's flailing frames). */
 export const ROAST_MS = 350
 
-/** A whole Step animation; buttons stay locked meanwhile. Road.module.css repeats these delays. */
+/** A whole Step animation; buttons stay locked meanwhile. The scene passes it and THROW_MS to its CSS. */
 export const STEP_MS = THROW_MS + HOP_MS
 
 /** After the last Step of a Max Win, how long the chicken stands there before the celebration (a Finish waits for the golden case). */

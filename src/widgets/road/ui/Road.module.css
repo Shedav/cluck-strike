@@ -13,7 +13,7 @@
 .start,
 .lane,
 .finish {
-  flex: 0 0 140px; /* LANE_PX in timing.ts */
+  flex: 0 0 var(--lane-px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,7 +23,7 @@
 
 .start,
 .finish {
-  flex-basis: 120px; /* START_PX in timing.ts */
+  flex-basis: var(--start-px);
   justify-content: flex-end;
   background: linear-gradient(#2a2418, #211c13);
 }
@@ -98,19 +98,19 @@
   border-color: var(--win);
   color: var(--win);
   /* Turns green when the grenade lands (THROW_MS), not when the Step is decided. */
-  transition-delay: 0.45s;
+  transition-delay: var(--throw-ms);
 }
 
 .hit {
   background: rgb(237 68 56 / 0.12);
-  transition: background 0.2s 0.9s;
+  transition: background 0.2s var(--step-ms);
 }
 
 .hit .badge {
   border-color: var(--hit);
   color: var(--hit);
   /* Turns red when the chicken lands in the fire (STEP_MS). */
-  transition-delay: 0.9s;
+  transition-delay: var(--step-ms);
 }
 
 .chicken {
