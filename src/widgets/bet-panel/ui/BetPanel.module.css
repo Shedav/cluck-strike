@@ -311,16 +311,21 @@
     height: auto;
   }
 
+  /* The buttons come first, right under the scene, so they stay in reach without scrolling. */
   .actions {
+    order: -1;
     margin-left: 0;
     padding-top: 0;
   }
 
+  /* Each button sizes to its text and shares the rest, so "Cash Out 1,000.00" stays on one line. */
   .go,
   .cashOut {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
+    padding: 0 14px;
     justify-content: center;
+    white-space: nowrap;
   }
 }
 
