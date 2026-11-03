@@ -10,7 +10,7 @@ import {
   createGameStore,
   RECENT_GAMES,
 } from './store'
-import { parseCoins } from '@/shared/lib'
+import { parseAmount } from '@/shared/lib'
 
 const CLIENT_SEED = 'test-client'
 
@@ -98,7 +98,7 @@ describe('game store', () => {
     ['2.5', null],
   ])('Bet input %j is %s', async (text, error) => {
     const game = gameWith('any')
-    game.getState().setBet(parseCoins(text))
+    game.getState().setBet(parseAmount(text))
     expect(betError(game.getState())).toBe(error)
     expect(canPlay(game.getState())).toBe(error === null)
     await game.getState().play()

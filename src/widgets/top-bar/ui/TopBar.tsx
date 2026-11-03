@@ -3,9 +3,9 @@ import { useGame } from '@/entities/round'
 import { FairnessButton } from '@/features/verify-round'
 import { DIFFICULTIES, laneCount, MAX_WIN_CENTS, MULTIPLIERS } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
-import { formatCoins, formatMultiplier } from '@/shared/lib'
+import { formatAmount, formatMultiplier } from '@/shared/lib'
 import { useSettings, type Language } from '@/shared/settings'
-import { Coin, Dialog } from '@/shared/ui'
+import { BookIcon, CoinIcon, Dialog, SoundIcon } from '@/shared/ui'
 import styles from './TopBar.module.css'
 
 /** The game page header, in the layout of a cs2skin game page: name left, tools and Balance right. */
@@ -60,7 +60,7 @@ export function TopBar() {
         </div>
       </nav>
       <span className={styles.balance} data-testid="balance" aria-label={t('balance')}>
-        <Coin /> {formatCoins(balanceCents)}
+        <CoinIcon /> {formatAmount(balanceCents)}
       </span>
 
       <Dialog open={rulesOpen} onClose={() => setRulesOpen(false)} title={t('rules')}>
@@ -83,7 +83,7 @@ function Rules() {
       </ol>
       <h3>{t('rulesOdds')}</h3>
       <p>{t('rulesRtp')}</p>
-      <p>{t('rulesMaxWin', { amount: formatCoins(MAX_WIN_CENTS) })}</p>
+      <p>{t('rulesMaxWin', { amount: formatAmount(MAX_WIN_CENTS) })}</p>
       <h3>{t('rulesTables')}</h3>
       {DIFFICULTIES.map((d) => (
         <section key={d} className={styles.table}>
@@ -102,48 +102,5 @@ function Rules() {
       <h3>{t('rulesDemo')}</h3>
       <p>{t('rulesDemoText')}</p>
     </div>
-  )
-}
-
-/** Line icon in the cs2skin header style: a speaker with waves, or crossed out when muted. */
-function SoundIcon({ on }: { on: boolean }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M11 5 6 9H3v6h3l5 4z" />
-      {on ? (
-        <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />
-      ) : (
-        <path d="m16 9 6 6M22 9l-6 6" />
-      )}
-    </svg>
-  )
-}
-
-function BookIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z" />
-      <path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" />
-    </svg>
   )
 }

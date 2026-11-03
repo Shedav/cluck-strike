@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { betError, useGame } from '@/entities/round'
 import { laneCount, multiplierAt, payoutCents } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
-import { formatCoins, formatMultiplier } from '@/shared/lib'
-import { Coin, Dialog } from '@/shared/ui'
+import { formatAmount, formatMultiplier } from '@/shared/lib'
+import { AutoplayIcon, CoinIcon, Dialog } from '@/shared/ui'
 import { useAutoplay } from '../model/autoplay'
 import styles from './Autoplay.module.css'
 
@@ -23,21 +23,7 @@ export function AutoplayButton({ className, disabled }: { className: string; dis
         title={t('autoplay')}
         onClick={() => setOpen(true)}
       >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3" />
-          <path d="M18 3v4h-4M6 21v-4h4" />
-          <path d="m10 9 5 3-5 3z" fill="currentColor" />
-        </svg>
+        <AutoplayIcon />
       </button>
       <Dialog open={open} onClose={() => setOpen(false)} title={t('autoplay')}>
         <AutoplaySettings onStart={() => setOpen(false)} />
@@ -98,8 +84,8 @@ function AutoplaySettings({ onStart }: { onStart: () => void }) {
         <div>
           <span className={styles.label}>{t('autoplayWin')}</span>
           <strong>
-            <Coin />{' '}
-            {canStart ? formatCoins(payoutCents(game.betCents, difficulty, cashOutLane)) : '—'}
+            <CoinIcon />{' '}
+            {canStart ? formatAmount(payoutCents(game.betCents, difficulty, cashOutLane)) : '—'}
           </strong>
         </div>
       </div>

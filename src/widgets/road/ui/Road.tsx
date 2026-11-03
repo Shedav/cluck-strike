@@ -13,8 +13,8 @@ import {
 } from '@/shared/config'
 import { maxWinLane, MULTIPLIERS } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
-import { formatCoins, formatMultiplier, playSound } from '@/shared/lib'
-import { Coin, PixelSprite } from '@/shared/ui'
+import { formatAmount, formatMultiplier, playSound } from '@/shared/lib'
+import { CoinIcon, PixelSprite } from '@/shared/ui'
 import { centreOf, LANE_PX, START_PX } from '../config'
 import { BURN } from '../pixel/burn'
 import { GOLDEN_CASE } from '../pixel/case'
@@ -31,7 +31,7 @@ export function Road() {
   // Index 0 is the start column, 1..n the Lanes.
   const cells = useRef<(HTMLDivElement | null)[]>([])
   // The burn plays after the throw and the hop, so the Hit result stays up a bit longer.
-  const burnt = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS)
+  const hitOver = useAfterDelay(round.phase === 'hit', round.nonce, STEP_MS + RESULT_MS)
   // A Finish or Max Win comes from a Step: let the chicken land on the Lane first, then celebrate.
   // On a Finish the golden case opens as it lands, and the celebration waits until it is open.
   const stepWin = round.phase === 'finished' || round.phase === 'maxWin'
@@ -44,8 +44,8 @@ export function Road() {
   const celebrate = round.phase === 'cashedOut' || landed
   // After a win the chicken goes back to the start (the popup tells the result); after a Hit the
   // fire stays on the Lane for a moment first.
-  const lane = celebrate || burnt ? 0 : round.lane
-  const hitNow = round.phase === 'hit' && !burnt
+  const lane = celebrate || hitOver ? 0 : round.lane
+  const hitNow = round.phase === 'hit' && !hitOver
 
   // How the chicken got to `lane`: a Step forward (hop over from the previous cell) or a reset (fade
   // out where it was, fade in at the start). Updated during render, React's "previous value" pattern.
@@ -364,7 +364,7 @@ function WinPopup({ show }: { show: boolean }) {
         {formatMultiplier(round.payoutCents / round.betCents)}
       </span>
       <span className={styles.popupAmount}>
-        <Coin size={20} /> {formatCoins(round.payoutCents)}
+        <CoinIcon size={20} /> {formatAmount(round.payoutCents)}
       </span>
     </div>
   )

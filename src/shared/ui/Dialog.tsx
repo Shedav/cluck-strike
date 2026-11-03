@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { useT } from '@/shared/i18n'
 import styles from './Dialog.module.css'
+import { CloseIcon } from './icons/LineIcons'
 
 /** A native modal dialog (focus trap, Escape) that also closes on a backdrop click. */
 export function Dialog({
@@ -39,17 +40,7 @@ export function Dialog({
               onClick={() => dialog.current?.close()}
               aria-label={t('close')}
             >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                aria-hidden="true"
-              >
-                <path d="M6 6l12 12M18 6 6 18" />
-              </svg>
+              <CloseIcon />
             </button>
           </header>
           {children}

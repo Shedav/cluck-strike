@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { isWin, useGame, type Round } from '@/entities/round'
 import { RoundProof } from '@/features/verify-round'
 import { useT } from '@/shared/i18n'
-import { formatCoins, formatMultiplier } from '@/shared/lib'
-import { Coin, Dialog } from '@/shared/ui'
+import { formatAmount, formatMultiplier } from '@/shared/lib'
+import { CoinIcon, Dialog } from '@/shared/ui'
 import styles from './RecentGames.module.css'
 
 const PAGE = 10
@@ -46,13 +46,13 @@ export function RecentGames() {
                 >
                   <td>{t(round.difficulty)}</td>
                   <td>
-                    <Coin size={14} /> {formatCoins(round.betCents)}
+                    <CoinIcon size={14} /> {formatAmount(round.betCents)}
                   </td>
                   <td className={styles.result}>
                     {won ? formatMultiplier(round.payoutCents / round.betCents) : '0.00x'}
                   </td>
                   <td className={styles.result}>
-                    <Coin size={14} /> {won ? formatCoins(round.payoutCents) : '0.00'}
+                    <CoinIcon size={14} /> {won ? formatAmount(round.payoutCents) : '0.00'}
                   </td>
                   <td>
                     <button

@@ -22,8 +22,8 @@ import {
   type Difficulty,
 } from '@/shared/game-rules'
 import { useT, type MessageKey } from '@/shared/i18n'
-import { formatCoins, formatMultiplier, parseCoins } from '@/shared/lib'
-import { Coin } from '@/shared/ui'
+import { formatAmount, formatMultiplier, parseAmount } from '@/shared/lib'
+import { CoinIcon } from '@/shared/ui'
 import styles from './BetPanel.module.css'
 
 export function BetPanel() {
@@ -93,7 +93,7 @@ export function BetPanel() {
             {t('min')}
           </button>
           <span className={styles.inputBox}>
-            <Coin />
+            <CoinIcon />
             <input
               id="bet-amount"
               className={styles.input}
@@ -104,7 +104,7 @@ export function BetPanel() {
               aria-describedby={error ? 'bet-error' : undefined}
               onChange={(e) => {
                 setBetText(e.target.value)
-                game.setBet(parseCoins(e.target.value))
+                game.setBet(parseAmount(e.target.value))
               }}
             />
           </span>
@@ -126,14 +126,14 @@ export function BetPanel() {
               disabled={locked}
               onClick={() => choose(cents)}
             >
-              <Coin size={12} /> {cents / 100}
+              <CoinIcon size={12} /> {cents / 100}
             </button>
           ))}
         </div>
         {error && (
           <span id="bet-error" className={styles.error}>
             {t(BET_ERRORS[error], {
-              amount: formatCoins(error === 'belowMin' ? MIN_BET_CENTS : MAX_BET_CENTS),
+              amount: formatAmount(error === 'belowMin' ? MIN_BET_CENTS : MAX_BET_CENTS),
             })}
           </span>
         )}
@@ -173,7 +173,8 @@ export function BetPanel() {
       <div className={styles.maxWin}>
         <span className={styles.label}>{t('maxWin')}</span>
         <span className={styles.maxWinValue}>
-          <Coin /> {error ? '—' : formatCoins(maxWinCents(game.betCents, game.round.difficulty))}
+          <CoinIcon />{' '}
+          {error ? '—' : formatAmount(maxWinCents(game.betCents, game.round.difficulty))}
         </span>
       </div>
 
@@ -195,7 +196,7 @@ export function BetPanel() {
               disabled={!canTake}
               onClick={press(game.cashOut)}
             >
-              {t('cashOut')} <Coin /> {formatCoins(cashOutCents(game))}
+              {t('cashOut')} <CoinIcon /> {formatAmount(cashOutCents(game))}
             </button>
             <button
               className={styles.go}
@@ -254,7 +255,7 @@ function RoundStatus() {
     return () => clearTimeout(timer)
   }, [latest])
   const t = useT()
-  const amount = formatCoins(round.payoutCents)
+  const amount = formatAmount(round.payoutCents)
   switch (round.phase) {
     case 'playing':
       return round.lane > 0 ? (
