@@ -5,14 +5,24 @@ import { useSettings } from '@/shared/settings'
 let context: AudioContext | null = null
 let unlocked = false
 
-// Browsers only allow audio after a user gesture; until then every effect is skipped.
+// Browsers only allow audio after a user gesture; until then every effect is skipped. A touch
+// counts as a gesture on release, not on pointerdown, so phones (iOS Safari above all) need
+// pointerup/touchend, and the context is resumed on every gesture until it actually runs.
 if (typeof window !== 'undefined') {
   const unlock = () => {
     unlocked = true
-    void audio()?.resume()
+    const ctx = audio()
+    if (!ctx || ctx.state === 'running') return
+    void ctx.resume()
+    // Older iOS only starts audio once something plays inside the gesture: a silent sample.
+    const silence = ctx.createBufferSource()
+    silence.buffer = ctx.createBuffer(1, 1, 22_050)
+    silence.connect(ctx.destination)
+    silence.start()
   }
-  window.addEventListener('pointerdown', unlock, { once: true, capture: true })
-  window.addEventListener('keydown', unlock, { once: true, capture: true })
+  for (const type of ['pointerup', 'touchend', 'keydown']) {
+    window.addEventListener(type, unlock, { capture: true })
+  }
 }
 
 function audio(): AudioContext | null {
