@@ -25,3 +25,9 @@ dist-ssr
 playwright-report
 test-results
 .claude
+
+# Working notes for agents and planning; kept on disk, not in the repository
+docs/
+CLAUDE.md
+CODING_STANDARDS.md
+GLOSSARY.md
