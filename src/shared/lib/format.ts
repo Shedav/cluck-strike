@@ -12,3 +12,7 @@ const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumSig
 /** 1.07 → "1.07x"; from 1,000 on, compact so badges stay readable: 41321.43 → "41.3Kx". */
 export const formatMultiplier = (multiplier: number) =>
   `${multiplier < 1000 ? multiplier.toFixed(2) : compact.format(multiplier)}x`
+
+/** The exact Multiplier with thousands separators: 41321.43 → "41,321.43x". */
+export const formatMultiplierFull = (multiplier: number) =>
+  `${multiplier.toLocaleString('en-US', { minimumFractionDigits: 2 })}x`

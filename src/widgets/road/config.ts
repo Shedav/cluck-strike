@@ -5,3 +5,6 @@ export const LANE_PX = 140
 /** Horizontal centre of a cell: 0 is the start column, 1..n the Lanes. */
 export const centreOf = (cell: number) =>
   cell === 0 ? START_PX / 2 : START_PX + (cell - 1) * LANE_PX + LANE_PX / 2
+
+/** How fast a chicken or a doused fire fades out (motion transition). */
+export const FADE = { duration: 0.25 }

@@ -3,7 +3,7 @@ import { useGame } from '@/entities/round'
 import { FairnessButton } from '@/features/verify-round'
 import { DIFFICULTIES, laneCount, MAX_WIN_CENTS, MULTIPLIERS } from '@/shared/game-rules'
 import { useT } from '@/shared/i18n'
-import { formatAmount, formatMultiplier } from '@/shared/lib'
+import { formatAmount, formatMultiplier, formatMultiplierFull } from '@/shared/lib'
 import { useSettings, type Language } from '@/shared/settings'
 import { BookIcon, CoinIcon, Dialog, SoundIcon } from '@/shared/ui'
 import styles from './TopBar.module.css'
@@ -92,7 +92,7 @@ function Rules() {
           </h4>
           <ol className={styles.multipliers}>
             {MULTIPLIERS[d].map((m, i) => (
-              <li key={i} title={`${m.toLocaleString('en-US', { minimumFractionDigits: 2 })}x`}>
+              <li key={i} title={formatMultiplierFull(m)}>
                 {formatMultiplier(m)}
               </li>
             ))}
