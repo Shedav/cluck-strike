@@ -28,6 +28,10 @@ if (typeof window !== 'undefined') {
 function audio(): AudioContext | null {
   if (!context && typeof AudioContext !== 'undefined') {
     try {
+      // iOS treats Web Audio as "ambient" and mutes it with the ring/silent switch; "playback"
+      // plays like a media app, and the in-game toggle stays the way to mute (Safari 16.4+).
+      const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession
+      if (session) session.type = 'playback'
       context = new AudioContext()
     } catch {
       return null // no audio device or blocked: the game just stays silent
