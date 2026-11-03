@@ -11,6 +11,8 @@ let unlocked = false
 if (typeof window !== 'undefined') {
   const unlock = () => {
     unlocked = true
+    // Also after a return from the background, when the silent loop was paused.
+    keepPlaybackSession()
     const ctx = audio()
     if (!ctx || ctx.state === 'running') return
     void ctx.resume()
@@ -20,9 +22,36 @@ if (typeof window !== 'undefined') {
     silence.connect(ctx.destination)
     silence.start()
   }
+  // Pausing in the background keeps iOS from listing the page as playing media.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) mediaSession?.pause()
+  })
   for (const type of ['pointerup', 'touchend', 'keydown']) {
     window.addEventListener(type, unlock, { capture: true })
   }
+}
+
+/** 25 ms of silence as a WAV (8 kHz, 8-bit mono). */
+const SILENT_WAV =
+  'data:audio/wav;base64,UklGRuwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YcgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA=='
+
+let mediaSession: HTMLAudioElement | null = null
+
+/**
+ * iOS browsers without `navigator.audioSession` (Chrome, Firefox: WKWebView) mute Web Audio with the
+ * silent switch. A looping silent <audio> element, started in a gesture, moves the page to the
+ * media "playback" session so the effects are heard; it is not needed (or started) elsewhere.
+ */
+function keepPlaybackSession() {
+  const ios =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform))
+  if (!ios || 'audioSession' in navigator) return
+  if (!mediaSession) {
+    mediaSession = new Audio(SILENT_WAV)
+    mediaSession.loop = true
+  }
+  if (mediaSession.paused) void mediaSession.play().catch(() => {})
 }
 
 function audio(): AudioContext | null {
