@@ -1,7 +1,7 @@
 import { useStore } from 'zustand'
 import { createStore, type StoreApi } from 'zustand/vanilla'
 import { canPlay, gameStore, type GameState } from '@/entities/round'
-import { CASE_MS, RESULT_MS, STEP_MS } from '@/shared/config'
+import { CASE_MS, LANDED_PAUSE_MS, RESULT_MS, STEP_MS } from '@/shared/config'
 
 export interface AutoplaySettings {
   rounds: number
@@ -42,7 +42,11 @@ export function createAutoplay(game: StoreApi<GameState>, wait = sleep) {
         }
         if (game.getState().round.phase === 'playing') await game.getState().cashOut()
         if (n === rounds || get().stopping) break
-        await wait(RESULT_MS + (game.getState().round.phase === 'finished' ? CASE_MS : 0))
+        // The scene celebrates a Finish after the case opens and a Max Win after a pause.
+        const { phase } = game.getState().round
+        await wait(
+          RESULT_MS + (phase === 'finished' ? CASE_MS : phase === 'maxWin' ? LANDED_PAUSE_MS : 0),
+        )
       }
     }
 

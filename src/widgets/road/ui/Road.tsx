@@ -2,6 +2,7 @@ import { AnimatePresence, motion, MotionConfig } from 'motion/react'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { isWin, useGame } from '@/entities/round'
 import {
+  BURN_MS,
   CASE_MS,
   HOP_MS,
   LANDED_PAUSE_MS,
@@ -257,9 +258,6 @@ function Burn() {
     />
   )
 }
-
-/** The whole burn; with `STEP_MS` it ends before `RESULT_MS` resets the scene. */
-const BURN_MS = 1500
 
 /** The smoke grenade arcs from the chicken's Lane: onto this Lane's fire, or past it on a Hit. */
 function Grenade({ miss }: { miss: boolean }) {

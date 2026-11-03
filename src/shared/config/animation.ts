@@ -20,3 +20,6 @@ export const RESULT_MS = 2000
 
 /** On a Finish, the golden case shakes, bursts open and settles before the celebration starts. */
 export const CASE_MS = 1100
+
+/** On a Hit, the chicken burns down to a pile of bones; it ends before `RESULT_MS` resets the scene. */
+export const BURN_MS = 1500

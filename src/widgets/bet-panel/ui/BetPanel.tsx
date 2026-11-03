@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import {
   betError,
   canCashOut,
@@ -8,11 +8,12 @@ import {
   cashOutCents,
   MAX_BET_CENTS,
   MIN_BET_CENTS,
+  gameStore,
   useGame,
   type BetError,
 } from '@/entities/round'
 import { AutoplayButton, useAutoplay } from '@/features/autoplay'
-import { STEP_MS } from '@/shared/config'
+import { BURN_MS, STEP_MS } from '@/shared/config'
 import {
   DIFFICULTIES,
   laneCount,
@@ -41,7 +42,9 @@ export function BetPanel() {
     setAnimating(true)
     try {
       await action()
-      await new Promise((resolve) => setTimeout(resolve, STEP_MS))
+      // After a Hit, Play waits for the burn too, so a new Round doesn't cut it short.
+      const hit = gameStore.getState().round.phase === 'hit'
+      await new Promise((resolve) => setTimeout(resolve, hit ? STEP_MS + BURN_MS : STEP_MS))
     } finally {
       setAnimating(false)
     }
@@ -50,14 +53,16 @@ export function BetPanel() {
   const canStep = !animating && (playing ? canGo(game) : canPlay(game))
   const canTake = !animating && canCashOut(game)
 
-  // Hotkeys: Space = Play/GO, Enter = Cash Out. Not while typing or with a dialog open; on another
-  // focused control (MIN, a chip...) Space and Enter keep their own meaning.
+  // Hotkeys: Space = Play/GO, Enter = Cash Out. Not while typing or with a dialog open; on any
+  // focused control (MIN, a chip, Play/GO/Cash Out themselves) Space and Enter press that control,
+  // as a keyboard user expects. A mouse click doesn't leave focus on Play/GO/Cash Out (`press`), so
+  // for mouse players the hotkeys stay global.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key !== ' ' && e.key !== 'Enter') return
       if (e.repeat || auto.running || document.querySelector('dialog[open]')) return
       const el = document.activeElement
-      if (el && el !== document.body && !(el instanceof HTMLElement && el.dataset.hotkey)) return
+      if (el && el !== document.body) return
       e.preventDefault()
       if (e.key === ' ' && canStep) void animated(playing ? game.go : game.play)
       if (e.key === 'Enter' && canTake) void game.cashOut()
@@ -65,6 +70,12 @@ export function BetPanel() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   })
+
+  /** A click handler that drops the focus after a mouse click, so Space/Enter go back to the hotkeys. */
+  const press = (action: () => unknown) => (e: MouseEvent<HTMLButtonElement>) => {
+    if (e.detail > 0) e.currentTarget.blur()
+    void action()
+  }
 
   function choose(cents: number) {
     setBetText((cents / 100).toFixed(2))
@@ -181,17 +192,15 @@ export function BetPanel() {
             <button
               key="cashOut"
               className={styles.cashOut}
-              data-hotkey="Enter"
               disabled={!canTake}
-              onClick={game.cashOut}
+              onClick={press(game.cashOut)}
             >
               {t('cashOut')} <Coin /> {formatCoins(cashOutCents(game))}
             </button>
             <button
               className={styles.go}
-              data-hotkey="Space"
               disabled={!canStep}
-              onClick={() => animated(game.go)}
+              onClick={press(() => animated(game.go))}
             >
               {t('go')}
             </button>
@@ -205,9 +214,8 @@ export function BetPanel() {
             <AutoplayButton className={styles.auto} disabled={!canStep} />
             <button
               className={styles.go}
-              data-hotkey="Space"
               disabled={!canStep}
-              onClick={() => animated(game.play)}
+              onClick={press(() => animated(game.play))}
             >
               {t('play')}
             </button>
@@ -237,7 +245,14 @@ const maxWinCents = (betCents: number, difficulty: Difficulty) =>
 
 /** Screen readers only: what the scene and the win popup show, as one live message. */
 function RoundStatus() {
-  const round = useGame((s) => s.round)
+  const latest = useGame((s) => s.round)
+  // A Step, Hit or win is announced when the chicken lands, as the scene shows it, not when the
+  // server answers; a Cash Out has no animation to wait for.
+  const [round, setRound] = useState(latest)
+  useEffect(() => {
+    const timer = setTimeout(() => setRound(latest), latest.phase === 'cashedOut' ? 0 : STEP_MS)
+    return () => clearTimeout(timer)
+  }, [latest])
   const t = useT()
   const amount = formatCoins(round.payoutCents)
   switch (round.phase) {
